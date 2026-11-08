@@ -3,7 +3,8 @@ export type FashionStyle =
   | "casual"
   | "sporty"
   | "minimalist"
-  | "modern";
+  | "modern"
+  | "smart-casual";
 
 export type Occasion =
   | "daily"
@@ -25,8 +26,16 @@ export type ColorPreference =
   | "colorful";
 
 export type Size = "S" | "M" | "L" | "XL" | "XXL";
-
 export type BudgetRange = "budget" | "mid" | "premium";
+export type FitPreference = "oversized" | "regular" | "slim";
+
+export type ProductCategory =
+  | "oversized-tshirt"
+  | "hoodie"
+  | "cargo-pants"
+  | "jacket"
+  | "sneakers"
+  | "accessories";
 
 export interface Product {
   id: string;
@@ -40,19 +49,13 @@ export interface Product {
   colors: string[];
   images: string[];
   tags: string[];
+  fit?: FitPreference;
+  inStock?: boolean;
 }
-
-export type ProductCategory =
-  | "oversized-tshirt"
-  | "hoodie"
-  | "cargo-pants"
-  | "jacket"
-  | "sneakers"
-  | "accessories";
 
 export interface OutfitItem {
   productId: string;
-  role: string; // e.g. "top", "bottom", "footwear", "outer"
+  role: string;
 }
 
 export interface Outfit {
@@ -70,6 +73,7 @@ export interface Outfit {
   whyItWorks: string;
   whyItWorksFa: string;
   tags: string[];
+  fit?: FitPreference;
 }
 
 export interface UserPreferences {
@@ -77,14 +81,14 @@ export interface UserPreferences {
   ageRange: string;
   styles: FashionStyle[];
   colors: ColorPreference[];
-  sizes: {
-    top?: Size;
-    bottom?: Size;
-    shoes?: string;
-  };
+  sizes: { top?: Size; bottom?: Size; shoes?: string };
   budget: BudgetRange;
   occasion: Occasion[];
   preferredItems: ProductCategory[];
+  fit?: FitPreference;
+  dislikedStyles?: FashionStyle[];
+  heightRange?: string;
+  ownedItems?: ProductCategory[];
   photoUrl?: string;
 }
 

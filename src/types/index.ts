@@ -52,7 +52,7 @@ export type ProductCategory =
 
 export interface OutfitItem {
   productId: string;
-  role: string;
+  role: string; // e.g. "top", "bottom", "footwear", "outer"
 }
 
 export interface Outfit {

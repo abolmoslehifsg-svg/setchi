@@ -1,2 +1,1 @@
-NEXT_PUBLIC_SUPABASE_URL=https://ymbkdwayywntbelgshcn.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_7KtcOG_A3aI4OUFV8DXyOA_4zf42FyP
+DO NOT COMMIT SECRETS. Use GitHub Secrets or Vercel env vars instead.

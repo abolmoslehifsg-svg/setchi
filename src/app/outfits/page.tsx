@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import { OutfitCard } from "@/components/OutfitCard";
 import { outfits } from "@/data/outfits";
 import { FashionStyle, Occasion } from "@/types";
@@ -42,11 +41,8 @@ const budgetOptions = [
   { value: "premium", label: "پریمیوم (۷ م+)" },
 ];
 
-function OutfitsContent() {
-  const searchParams = useSearchParams();
-  const initialStyle = (searchParams.get("style") as FashionStyle) || "all";
-
-  const [style, setStyle] = useState<FashionStyle | "all">(initialStyle);
+export default function OutfitsPage() {
+  const [style, setStyle] = useState<FashionStyle | "all">("all");
   const [occasion, setOccasion] = useState<Occasion | "all">("all");
   const [color, setColor] = useState("all");
   const [budget, setBudget] = useState("all");
@@ -55,15 +51,10 @@ function OutfitsContent() {
     return outfits.filter((o) => {
       if (style !== "all" && !o.style.includes(style)) return false;
       if (occasion !== "all" && !o.occasion.includes(occasion)) return false;
-      if (color !== "all" && !o.colors.some((c) => c.includes(color)))
-        return false;
+      if (color !== "all" && !o.colors.some((c) => c.includes(color))) return false;
       if (budget !== "all") {
         if (budget === "budget" && o.estimatedPrice > 5000000) return false;
-        if (
-          budget === "mid" &&
-          (o.estimatedPrice < 4000000 || o.estimatedPrice > 9000000)
-        )
-          return false;
+        if (budget === "mid" && (o.estimatedPrice < 4000000 || o.estimatedPrice > 9000000)) return false;
         if (budget === "premium" && o.estimatedPrice < 7000000) return false;
       }
       return true;
@@ -73,48 +64,19 @@ function OutfitsContent() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
       <div className="mb-10">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-          گالری استایل‌ها
-        </h1>
-        <p className="mt-2 text-[var(--secondary)]">
-          کشف کن، فیلتر کن و استایل مورد علاقه‌ات را پیدا کن
-        </p>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">گالری استایل‌ها</h1>
+        <p className="mt-2 text-[var(--secondary)]">کشف کن، فیلتر کن و استایل مورد علاقه‌ات را پیدا کن</p>
       </div>
 
-      {/* Filters */}
       <div className="mb-10 space-y-4">
-        <FilterRow
-          label="استایل"
-          options={styleOptions}
-          value={style}
-          onChange={(v) => setStyle(v as FashionStyle | "all")}
-        />
-        <FilterRow
-          label="موقعیت"
-          options={occasionOptions}
-          value={occasion}
-          onChange={(v) => setOccasion(v as Occasion | "all")}
-        />
-        <FilterRow
-          label="رنگ"
-          options={colorOptions}
-          value={color}
-          onChange={setColor}
-        />
-        <FilterRow
-          label="بودجه"
-          options={budgetOptions}
-          value={budget}
-          onChange={setBudget}
-        />
+        <FilterRow label="استایل" options={styleOptions} value={style} onChange={(v) => setStyle(v as FashionStyle | "all")} />
+        <FilterRow label="موقعیت" options={occasionOptions} value={occasion} onChange={(v) => setOccasion(v as Occasion | "all")} />
+        <FilterRow label="رنگ" options={colorOptions} value={color} onChange={setColor} />
+        <FilterRow label="بودجه" options={budgetOptions} value={budget} onChange={setBudget} />
       </div>
 
-      {/* Results count */}
-      <p className="mb-6 text-sm text-[var(--secondary)]">
-        {filtered.length} استایل پیدا شد
-      </p>
+      <p className="mb-6 text-sm text-[var(--secondary)]">{filtered.length} استایل پیدا شد</p>
 
-      {/* Grid */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((o) => (
@@ -123,9 +85,7 @@ function OutfitsContent() {
         </div>
       ) : (
         <div className="py-20 text-center">
-          <p className="text-lg text-[var(--secondary)]">
-            استایلی با این فیلترها پیدا نشد.
-          </p>
+          <p className="text-lg text-[var(--secondary)]">استایلی با این فیلترها پیدا نشد.</p>
           <button
             type="button"
             onClick={() => {
@@ -157,9 +117,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-      <span className="text-sm font-medium text-[var(--secondary)] w-16 shrink-0">
-        {label}
-      </span>
+      <span className="text-sm font-medium text-[var(--secondary)] w-16 shrink-0">{label}</span>
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         {options.map((opt) => (
           <button
@@ -177,13 +135,5 @@ function FilterRow({
         ))}
       </div>
     </div>
-  );
-}
-
-export default function OutfitsPage() {
-  return (
-    <Suspense fallback={<div className="p-10 text-center">در حال بارگذاری...</div>}>
-      <OutfitsContent />
-    </Suspense>
   );
 }

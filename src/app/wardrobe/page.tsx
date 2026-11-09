@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useWardrobe } from "@/context/WardrobeContext";
@@ -34,59 +34,43 @@ export default function WardrobePage() {
   const [active, setActive] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    try {
+      const t = new URLSearchParams(window.location.search).get("tab");
+      if (t === "build" || t === "saved" || t === "missing" || t === "items") setTab(t);
+    } catch {}
+  }, []);
+
   const missing = useMemo(() => analyzeMissing(w.items), [w.items]);
   const current = generated[active];
 
   const onFile = async (file: File | null) => {
-    if (!file || !file.type.startsWith("image/")) {
-      setError("فقط تصویر");
-      return;
-    }
-    setBusy(true);
-    setError("");
+    if (!file || !file.type.startsWith("image/")) { setError("فقط تصویر"); return; }
+    setBusy(true); setError("");
     try {
       const data = await compressImage(file);
       setPreview(data);
       if (!name) setName(file.name.replace(/\.[^.]+$/, "").slice(0, 40));
     } catch (e) {
       setError(e instanceof Error ? e.message : "خطا");
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   };
 
   const submit = () => {
-    if (!preview || !name.trim()) {
-      setError("تصویر و نام لازم است");
-      return;
-    }
+    if (!preview || !name.trim()) { setError("تصویر و نام لازم است"); return; }
     w.addItem({
-      imageData: preview,
-      name: name.trim(),
-      category,
-      mainColor,
-      secondaryColors: [],
-      pattern,
-      style,
-      season,
-      fit,
-      favorite: false,
+      imageData: preview, name: name.trim(), category, mainColor,
+      secondaryColors: [], pattern, style, season, fit, favorite: false,
     });
-    setShowAdd(false);
-    setPreview(null);
-    setName("");
-    setTab("items");
+    setShowAdd(false); setPreview(null); setName(""); setTab("items");
   };
 
   const run = () => {
     setGenerated(generateFromWardrobe(w.items, w.prefs, 8));
-    setActive(0);
-    setTab("build");
+    setActive(0); setTab("build");
   };
 
-  if (!w.ready) {
-    return <div className="py-24 text-center text-[var(--secondary)]">بارگذاری...</div>;
-  }
+  if (!w.ready) return <div className="py-24 text-center text-[var(--secondary)]">بارگذاری...</div>;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -114,30 +98,26 @@ export default function WardrobePage() {
         ))}
       </div>
 
-      {tab==="items" && (
-        w.items.length===0 ? (
-          <div className="rounded-3xl border border-dashed border-[var(--border)] p-14 text-center">
-            <p className="text-xl font-semibold">کمد خالی است</p>
-            <p className="mt-2 text-[var(--secondary)] text-sm">اولین لباس را با عکس اضافه کن.</p>
-            <button type="button" onClick={() => setShowAdd(true)} className="mt-6 rounded-full bg-[var(--foreground)] px-8 py-3 text-sm text-[var(--background)]">افزودن</button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {w.items.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
-                <div className="relative aspect-square bg-[var(--muted)]">
-                  <Image src={item.imageData} alt={item.name} fill unoptimized className="object-cover" sizes="25vw" />
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-medium truncate">{item.name}</p>
-                  <p className="text-xs text-[var(--secondary)]">{CATEGORY_LABELS[item.category]}</p>
-                  <button type="button" onClick={() => { if(confirm("حذف؟")) w.removeItem(item.id); }} className="text-xs text-red-600 mt-1">حذف</button>
-                </div>
+      {tab==="items" && (w.items.length===0 ? (
+        <div className="rounded-3xl border border-dashed border-[var(--border)] p-14 text-center">
+          <p className="text-xl font-semibold">کمد خالی است</p>
+          <p className="mt-2 text-[var(--secondary)] text-sm">اولین لباس را با عکس اضافه کن، بعد ساخت استایل بزن.</p>
+          <button type="button" onClick={() => setShowAdd(true)} className="mt-6 rounded-full bg-[var(--foreground)] px-8 py-3 text-sm text-[var(--background)]">افزودن لباس</button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {w.items.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
+              <div className="relative aspect-square bg-[var(--muted)]"><Image src={item.imageData} alt={item.name} fill unoptimized className="object-cover" sizes="25vw" /></div>
+              <div className="p-3">
+                <p className="text-sm font-medium truncate">{item.name}</p>
+                <p className="text-xs text-[var(--secondary)]">{CATEGORY_LABELS[item.category]}</p>
+                <button type="button" onClick={() => { if(confirm("حذف؟")) w.removeItem(item.id); }} className="text-xs text-red-600 mt-1">حذف</button>
               </div>
-            ))}
-          </div>
-        )
-      )}
+            </div>
+          ))}
+        </div>
+      ))}
 
       {tab==="build" && (
         <div className="grid lg:grid-cols-12 gap-6">
@@ -152,13 +132,11 @@ export default function WardrobePage() {
               <option value="streetwear">استریت‌ویر</option><option value="casual">کژوال</option>
               <option value="minimal">مینیمال</option><option value="sporty">اسپرتی</option>
             </select>
-            <button type="button" onClick={run} disabled={w.items.length<2} className="w-full rounded-full bg-[var(--foreground)] py-3 text-sm text-[var(--background)] disabled:opacity-40">تولید ترکیب</button>
-            <p className="text-xs text-[var(--secondary)]">فقط از لباس‌های کمد تو. AI تشخیص عکس فعلاً دستی است.</p>
+            <button type="button" onClick={run} disabled={w.items.length<2} className="w-full rounded-full bg-[var(--foreground)] py-3 text-sm text-[var(--background)] disabled:opacity-40">تولید ترکیب از کمد</button>
+            {w.items.length < 2 && <p className="text-xs text-red-600">حداقل یک بالاتنه و یک پایین‌تنه لازم است. <button type="button" className="underline" onClick={()=>setShowAdd(true)}>افزودن لباس</button></p>}
           </div>
           <div className="lg:col-span-8">
-            {!current ? (
-              <div className="border border-dashed border-[var(--border)] rounded-2xl p-10 text-center text-[var(--secondary)] text-sm">ترکیبی تولید نشده</div>
-            ) : (
+            {!current ? <div className="border border-dashed border-[var(--border)] rounded-2xl p-10 text-center text-[var(--secondary)] text-sm">ترکیبی تولید نشده</div> : (
               <div>
                 <div className="flex justify-between text-sm text-[var(--secondary)] mb-3">
                   <span>{active+1}/{generated.length} · امتیاز {current.score}</span>
@@ -192,39 +170,29 @@ export default function WardrobePage() {
         </div>
       )}
 
-      {tab==="saved" && (
-        w.outfits.length===0 ? <p className="text-center py-12 text-[var(--secondary)]">خالی</p> : (
-          <div className="space-y-3">
-            {w.outfits.map(o=>{
-              const its=o.itemIds.map(id=>w.items.find(i=>i.id===id)).filter(Boolean) as WardrobeItem[];
-              return (
-                <div key={o.id} className="rounded-2xl border border-[var(--border)] p-4">
-                  <div className="flex gap-2 mb-2 flex-wrap">
-                    {its.map(it=>(
-                      <div key={it.id} className="relative w-14 h-14 rounded-lg overflow-hidden bg-[var(--muted)]">
-                        <Image src={it.imageData} alt={it.name} fill unoptimized className="object-cover" sizes="56px" />
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-sm font-medium">{o.name}</p>
-                  <button type="button" onClick={()=>w.removeOutfit(o.id)} className="text-xs text-red-600 mt-1">حذف</button>
-                </div>
-              );
-            })}
-          </div>
-        )
-      )}
+      {tab==="saved" && (w.outfits.length===0 ? <p className="text-center py-12 text-[var(--secondary)]">خالی</p> : (
+        <div className="space-y-3">{w.outfits.map(o=>{
+          const its=o.itemIds.map(id=>w.items.find(i=>i.id===id)).filter(Boolean) as WardrobeItem[];
+          return (
+            <div key={o.id} className="rounded-2xl border border-[var(--border)] p-4">
+              <div className="flex gap-2 mb-2 flex-wrap">{its.map(it=>(
+                <div key={it.id} className="relative w-14 h-14 rounded-lg overflow-hidden bg-[var(--muted)]"><Image src={it.imageData} alt={it.name} fill unoptimized className="object-cover" sizes="56px" /></div>
+              ))}</div>
+              <p className="text-sm font-medium">{o.name}</p>
+              <button type="button" onClick={()=>w.removeOutfit(o.id)} className="text-xs text-red-600 mt-1">حذف</button>
+            </div>
+          );
+        })}</div>
+      ))}
 
       {tab==="missing" && (
-        <div className="space-y-3 max-w-xl">
-          {missing.map((m,i)=>(
-            <div key={i} className="rounded-2xl border border-[var(--border)] p-5">
-              <h3 className="font-semibold">{m.titleFa}</h3>
-              <p className="text-sm text-[var(--secondary)] mt-1">{m.reasonFa}</p>
-              {m.storeHint && <Link href="/products/" className="text-sm text-[var(--accent)] mt-2 inline-block">محصولات ←</Link>}
-            </div>
-          ))}
-        </div>
+        <div className="space-y-3 max-w-xl">{missing.map((m,i)=>(
+          <div key={i} className="rounded-2xl border border-[var(--border)] p-5">
+            <h3 className="font-semibold">{m.titleFa}</h3>
+            <p className="text-sm text-[var(--secondary)] mt-1">{m.reasonFa}</p>
+            {m.storeHint && <Link href="/products/" className="text-sm text-[var(--accent)] mt-2 inline-block">محصولات ←</Link>}
+          </div>
+        ))}</div>
       )}
 
       {showAdd && (
@@ -257,7 +225,6 @@ export default function WardrobePage() {
               </div>
             </div>
             {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
-            <p className="text-[11px] text-[var(--secondary)] mt-2">ذخیره فقط روی همین دستگاه (localStorage). تشخیص AI تصویر فعلاً نیست.</p>
             <button type="button" onClick={submit} className="mt-4 w-full rounded-full bg-[var(--foreground)] py-3 text-sm text-[var(--background)]">افزودن به کمد</button>
           </div>
         </div>

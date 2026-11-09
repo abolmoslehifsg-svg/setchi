@@ -11,6 +11,7 @@ const navItems = [
   { href: "/outfits/", label: "استایل‌ها" },
   { href: "/style-assistant/", label: "دستیار استایل" },
   { href: "/try-on/", label: "پرو مجازی" },
+  { href: "/wardrobe/", label: "کمد من" },
   { href: "/products/", label: "محصولات" },
 ];
 
@@ -33,7 +34,7 @@ export function Header() {
           <span className="hidden sm:inline text-sm text-[var(--secondary)]">ستچی</span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-6">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className={`text-sm font-medium ${isActive(item.href) ? "text-[var(--accent)]" : "text-[var(--secondary)] hover:text-[var(--foreground)]"}`}>
               {item.label}
@@ -42,19 +43,21 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
+          <Link href="/wardrobe/" className="relative p-2 text-[var(--secondary)] hover:text-[var(--accent)]" aria-label="کمد من">
+            <span className="text-sm font-medium">کمد</span>
+          </Link>
           <Link href="/outfits/" className="relative p-2 text-[var(--secondary)] hover:text-[var(--accent)]" aria-label="علاقه‌مندی‌ها">
             <svg className="w-5 h-5" fill={favorites.length ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
             {favorites.length > 0 && <span className="absolute -top-0.5 -left-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white">{favorites.length > 9 ? "9+" : favorites.length}</span>}
           </Link>
-          <Link href="/cart/" className="relative p-2 text-[var(--secondary)] hover:text-[var(--accent)]" aria-label="سبد خرید">
+          <Link href="/cart/" className="relative p-2 text-[var(--secondary)] hover:text-[var(--accent)]" aria-label="سبد">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
             </svg>
             {totalItems > 0 && <span className="absolute -top-0.5 -left-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white">{totalItems > 9 ? "9+" : totalItems}</span>}
           </Link>
-          <Link href="/auth/login/" className="text-sm font-medium text-[var(--secondary)] hover:text-[var(--foreground)] px-2">ورود</Link>
           <Link href="/style-assistant/" className="rounded-full bg-[var(--foreground)] px-5 py-2 text-sm font-medium text-[var(--background)] hover:bg-[var(--accent)]">استایل منو بساز</Link>
         </div>
 

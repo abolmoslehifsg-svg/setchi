@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -23,6 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -32,6 +33,15 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://ymbkdwayywntbelgshcn.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_7KtcOG_A3aI4OUFV8DXyOA_4zf42FyP
+
+      - name: Verify key pages exist
+        run: |
+          test -f out/index.html
+          test -d out/about || test -d out/about/
+          test -d out/contact || test -d out/contact/
+          test -d out/collaborate || test -d out/collaborate/
+          test -d out/wardrobe || test -d out/wardrobe/
+          ls -la out | head -40
 
       - name: Add .nojekyll
         run: touch out/.nojekyll

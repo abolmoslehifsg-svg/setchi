@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { WardrobeProvider } from "@/context/WardrobeContext";
 
 const vazir = Vazirmatn({
   subsets: ["arabic", "latin"],
@@ -16,7 +17,7 @@ const vazir = Vazirmatn({
 export const metadata: Metadata = {
   title: "SETCHI | ستچی — استایلت رو پیدا کن",
   description:
-    "پلتفرم استایل‌دهی مردانه. کشف استایل شخصی، ترکیب لباس و پیشنهادات تخصصی برای مردان ۱۸ تا ۳۵ سال.",
+    "پلتفرم استایل‌دهی مردانه و کمد هوشمند. با لباس‌هایی که داری، استایل بهتر بساز.",
 };
 
 export default function RootLayout({
@@ -27,9 +28,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] antialiased">
         <CartProvider>
           <FavoritesProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <WardrobeProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </WardrobeProvider>
           </FavoritesProvider>
         </CartProvider>
       </body>

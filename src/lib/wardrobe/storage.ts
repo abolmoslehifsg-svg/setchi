@@ -18,8 +18,18 @@ export function loadItems(): WardrobeItem[] {
   return safeParse(localStorage.getItem(ITEMS_KEY), []);
 }
 
-export function saveItems(items: WardrobeItem[]) {
-  localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+export function saveItems(items: WardrobeItem[]): { ok: boolean; error?: string } {
+  try {
+    localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+    return { ok: true };
+  } catch (e) {
+    const msg =
+      e instanceof DOMException && e.name === "QuotaExceededError"
+        ? "فضای ذخیره‌سازی مرورگر پر است. چند لباس با عکس حجیم را حذف کن."
+        : "ذخیره کمد ناموفق بود.";
+    console.error(msg, e);
+    return { ok: false, error: msg };
+  }
 }
 
 export function loadOutfits(): WardrobeOutfit[] {
@@ -27,8 +37,17 @@ export function loadOutfits(): WardrobeOutfit[] {
   return safeParse(localStorage.getItem(OUTFITS_KEY), []);
 }
 
-export function saveOutfits(outfits: WardrobeOutfit[]) {
-  localStorage.setItem(OUTFITS_KEY, JSON.stringify(outfits));
+export function saveOutfits(outfits: WardrobeOutfit[]): { ok: boolean; error?: string } {
+  try {
+    localStorage.setItem(OUTFITS_KEY, JSON.stringify(outfits));
+    return { ok: true };
+  } catch (e) {
+    const msg =
+      e instanceof DOMException && e.name === "QuotaExceededError"
+        ? "فضای ذخیره‌سازی پر است."
+        : "ذخیره استایل‌ها ناموفق بود.";
+    return { ok: false, error: msg };
+  }
 }
 
 export function loadPrefs(): WardrobePrefs {
@@ -42,7 +61,25 @@ export function loadPrefs(): WardrobePrefs {
 }
 
 export function savePrefs(prefs: WardrobePrefs) {
-  localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function exportWardrobeFullJson(): string {
+  return JSON.stringify(
+    {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      items: loadItems(),
+      outfits: loadOutfits(),
+      prefs: loadPrefs(),
+    },
+    null,
+    2
+  );
 }
 
 export function compressImage(file: File, maxWidth = 480, quality = 0.72): Promise<string> {

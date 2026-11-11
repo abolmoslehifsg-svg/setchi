@@ -1,40 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  formatPrice,
-  getAllProducts,
-  LiveProduct,
-  products as seedProducts,
-} from "@/data/products";
+import { formatPrice, productHref } from "@/data/products";
+import { CATEGORY_LABELS } from "@/lib/categories";
+import { useLiveCatalog } from "@/lib/use-live-catalog";
 import { ProductCategory } from "@/types";
 
 const categoryLabels: Record<ProductCategory | "all", string> = {
   all: "همه",
-  "oversized-tshirt": "تی‌شرت اورسایز",
-  hoodie: "هودی",
-  "cargo-pants": "شلوار کارگو",
-  jacket: "کاپشن",
-  sneakers: "اسنیکرز",
-  accessories: "اکسسوری",
+  ...CATEGORY_LABELS,
 };
 
 export default function ProductsPage() {
   const [category, setCategory] = useState<ProductCategory | "all">("all");
-  const [list, setList] = useState<LiveProduct[]>(seedProducts);
-
-  useEffect(() => {
-    const sync = () => setList(getAllProducts());
-    sync();
-    window.addEventListener("setchi-catalog-updated", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("setchi-catalog-updated", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
+  const { products: list } = useLiveCatalog();
 
   const filtered = useMemo(() => {
     if (category === "all") return list;
@@ -77,7 +58,7 @@ export default function ProductsPage() {
         {filtered.map((p) => (
           <Link
             key={p.id}
-            href={`/products/${p.id}/`}
+            href={productHref(p.id)}
             className="group block overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:shadow-md transition-shadow"
           >
             <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">

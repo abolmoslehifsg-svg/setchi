@@ -1,27 +1,30 @@
 import { outfits } from "@/data/outfits";
+import { products, getProductById, getOutfitTotalPrice } from "@/data/products";
 import {
   Outfit,
   UserPreferences,
   RecommendationResult,
-  FashionStyle,
-  Occasion,
   BudgetRange,
+  FashionStyle,
 } from "@/types";
 
 function scoreOutfit(outfit: Outfit, prefs: UserPreferences): number {
   let score = 0;
 
-  // Style match (high weight)
-  const styleMatches = prefs.styles.filter((s) => outfit.style.includes(s)).length;
-  score += styleMatches * 25;
+  if (prefs.dislikedStyles?.length) {
+    if (outfit.style.some((s) => prefs.dislikedStyles!.includes(s))) {
+      return 0;
+    }
+  }
 
-  // Occasion match
+  const styleMatches = prefs.styles.filter((s) => outfit.style.includes(s)).length;
+  score += styleMatches * 28;
+
   const occasionMatches = prefs.occasion.filter((o) =>
     outfit.occasion.includes(o)
   ).length;
-  score += occasionMatches * 20;
+  score += occasionMatches * 22;
 
-  // Color preference
   const colorMap: Record<string, string[]> = {
     black: ["Black"],
     white: ["White"],
@@ -33,39 +36,41 @@ function scoreOutfit(outfit: Outfit, prefs: UserPreferences): number {
     earth: ["Olive", "Beige", "Brown", "Khaki"],
     colorful: ["Black", "White", "Gray", "Olive", "Beige"],
   };
-
-  const preferredColorNames = prefs.colors.flatMap(
-    (c) => colorMap[c] || [c]
-  );
+  const preferred = prefs.colors.flatMap((c) => colorMap[c] || [c]);
   const colorHits = outfit.colors.filter((c) =>
-    preferredColorNames.some(
-      (pc) => c.toLowerCase().includes(pc.toLowerCase()) || pc.toLowerCase().includes(c.toLowerCase())
+    preferred.some(
+      (pc) =>
+        c.toLowerCase().includes(pc.toLowerCase()) ||
+        pc.toLowerCase().includes(c.toLowerCase())
     )
   ).length;
-  score += colorHits * 10;
+  score += colorHits * 12;
 
-  // Budget
+  // Non-overlapping ranges (toman)
   const budgetRanges: Record<BudgetRange, [number, number]> = {
-    budget: [0, 5000000],
-    mid: [4000000, 9000000],
-    premium: [7000000, 20000000],
+    budget: [0, 4999999],
+    mid: [5000000, 7999999],
+    premium: [8000000, 50000000],
   };
   const [minB, maxB] = budgetRanges[prefs.budget];
-  if (outfit.estimatedPrice >= minB && outfit.estimatedPrice <= maxB) {
-    score += 15;
-  } else if (
-    outfit.estimatedPrice < minB * 1.3 &&
-    outfit.estimatedPrice > maxB * 0.7
-  ) {
-    score += 5;
+  const totalPrice =
+    getOutfitTotalPrice(outfit.items.map((i) => i.productId)) ||
+    outfit.estimatedPrice;
+  if (totalPrice >= minB && totalPrice <= maxB) score += 18;
+  else if (totalPrice < minB * 1.25 && totalPrice > maxB * 0.75) score += 6;
+
+  if (prefs.fit && outfit.fit === prefs.fit) score += 12;
+  else if (prefs.fit && outfit.tags?.includes(prefs.fit)) score += 8;
+
+  if (prefs.preferredItems?.length) {
+    const roles = outfit.items
+      .map((i) => getProductById(i.productId)?.category)
+      .filter(Boolean);
+    const hits = prefs.preferredItems.filter((p) => roles.includes(p)).length;
+    score += hits * 6;
   }
 
-  // Preferred items presence
-  // (simplified: if outfit has items in preferred categories, bonus)
-  // We don't have full product lookup here for speed; assume good data coverage
-
-  // Base diversity bonus to avoid always same top
-  score += Math.random() * 5;
+  score += outfit.id.charCodeAt(1) % 7;
 
   return Math.min(100, Math.round(score));
 }
@@ -75,70 +80,65 @@ function buildExplanation(
   prefs: UserPreferences,
   score: number
 ): { en: string; fa: string } {
-  const styleText = prefs.styles.length
-    ? prefs.styles.join("، ")
-    : "عمومی";
-  const occasionText = prefs.occasion.length
-    ? prefs.occasion.join("، ")
-    : "روزمره";
-
-  return {
-    en: `This look scored ${score}/100 for your preferences. It aligns with your interest in ${prefs.styles.join(", ") || "versatile"} styles and works well for ${prefs.occasion.join(", ") || "everyday"} occasions. ${outfit.whyItWorks}`,
-    fa: `این ست امتیاز ${score} از ۱۰۰ را برای ترجیحات شما کسب کرد. با علاقه‌مندی شما به استایل‌های ${styleText} هم‌خوانی دارد و برای موقعیت‌های ${occasionText} مناسب است. ${outfit.whyItWorksFa}`,
-  };
+  const reasonsFa: string[] = [];
+  const styleHits = prefs.styles.filter((s) => outfit.style.includes(s));
+  if (styleHits.length) {
+    reasonsFa.push(`هم‌راستا با استایل ${styleHits.join("، ")}`);
+  }
+  const occHits = prefs.occasion.filter((o) => outfit.occasion.includes(o));
+  if (occHits.length) {
+    reasonsFa.push("مناسب موقعیت‌های انتخاب‌شده");
+  }
+  reasonsFa.push(outfit.whyItWorksFa);
+  const fa =
+    reasonsFa.slice(0, 3).join(" · ") +
+    (score >= 70 ? " · تطابق بالا با ترجیحات تو" : "");
+  return { en: outfit.whyItWorks, fa };
 }
 
 export function generateRecommendations(
   prefs: UserPreferences,
   limit = 4
 ): RecommendationResult[] {
-  const scored: RecommendationResult[] = outfits.map((outfit) => {
-    const matchScore = scoreOutfit(outfit, prefs);
-    const { en, fa } = buildExplanation(outfit, prefs, matchScore);
-    return {
-      outfit,
-      matchScore,
-      explanation: en,
-      explanationFa: fa,
-    };
-  });
+  const scored = outfits
+    .map((outfit) => {
+      const matchScore = scoreOutfit(outfit, prefs);
+      const explanation = buildExplanation(outfit, prefs, matchScore);
+      return {
+        outfit,
+        matchScore,
+        explanation: explanation.en,
+        explanationFa: explanation.fa,
+      };
+    })
+    .filter((r) => r.matchScore > 0)
+    .sort((a, b) => b.matchScore - a.matchScore)
+    .slice(0, limit);
 
-  // Sort by score descending
-  scored.sort((a, b) => b.matchScore - a.matchScore);
+  return scored;
+}
 
-  // Ensure diversity: prefer different primary styles if possible
-  const selected: RecommendationResult[] = [];
-  const usedStyles = new Set<string>();
-
-  for (const item of scored) {
-    if (selected.length >= limit) break;
-    const primaryStyle = item.outfit.style[0];
-    if (!usedStyles.has(primaryStyle) || selected.length < 2) {
-      selected.push(item);
-      usedStyles.add(primaryStyle);
-    }
-  }
-
-  // Fill remaining if needed
-  for (const item of scored) {
-    if (selected.length >= limit) break;
-    if (!selected.find((s) => s.outfit.id === item.outfit.id)) {
-      selected.push(item);
-    }
-  }
-
-  return selected;
+export function replaceOutfitItem(
+  outfit: Outfit,
+  role: string,
+  newProductId: string
+): Outfit {
+  const items = outfit.items.map((i) =>
+    i.role === role ? { ...i, productId: newProductId } : i
+  );
+  const newPrice = getOutfitTotalPrice(items.map((i) => i.productId));
+  return { ...outfit, items, estimatedPrice: newPrice };
 }
 
 export function getDefaultPreferences(): UserPreferences {
   return {
     gender: "male",
     ageRange: "18-25",
-    styles: ["streetwear", "casual"],
-    colors: ["black", "olive", "beige"],
-    sizes: { top: "L", bottom: "L", shoes: "42" },
+    styles: ["casual"],
+    colors: ["black", "white"],
+    sizes: {},
     budget: "mid",
-    occasion: ["daily", "casual-outings"],
-    preferredItems: ["oversized-tshirt", "hoodie", "cargo-pants"],
+    occasion: ["daily"],
+    preferredItems: [],
   };
 }

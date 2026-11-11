@@ -1,11 +1,10 @@
 import { outfits } from "@/data/outfits";
-import { products, getProductById, getOutfitTotalPrice } from "@/data/products";
+import { getProductById, getOutfitTotalPrice } from "@/data/products";
 import {
   Outfit,
   UserPreferences,
   RecommendationResult,
   BudgetRange,
-  FashionStyle,
 } from "@/types";
 
 function scoreOutfit(outfit: Outfit, prefs: UserPreferences): number {
@@ -46,7 +45,6 @@ function scoreOutfit(outfit: Outfit, prefs: UserPreferences): number {
   ).length;
   score += colorHits * 12;
 
-  // Non-overlapping ranges (toman)
   const budgetRanges: Record<BudgetRange, [number, number]> = {
     budget: [0, 4999999],
     mid: [5000000, 7999999],
@@ -66,12 +64,11 @@ function scoreOutfit(outfit: Outfit, prefs: UserPreferences): number {
     const roles = outfit.items
       .map((i) => getProductById(i.productId)?.category)
       .filter(Boolean);
-    const hits = prefs.preferredItems.filter((p) => roles.includes(p)).length;
+    const hits = prefs.preferredItems.filter((p) => roles.includes(p as never)).length;
     score += hits * 6;
   }
 
   score += outfit.id.charCodeAt(1) % 7;
-
   return Math.min(100, Math.round(score));
 }
 
@@ -83,7 +80,7 @@ function buildExplanation(
   const reasonsFa: string[] = [];
   const styleHits = prefs.styles.filter((s) => outfit.style.includes(s));
   if (styleHits.length) {
-    reasonsFa.push(`هم‌راستا با استایل ${styleHits.join("، ")}`);
+    reasonsFa.push("هم‌راستا با استایل انتخابی");
   }
   const occHits = prefs.occasion.filter((o) => outfit.occasion.includes(o));
   if (occHits.length) {
@@ -100,7 +97,7 @@ export function generateRecommendations(
   prefs: UserPreferences,
   limit = 4
 ): RecommendationResult[] {
-  const scored = outfits
+  return outfits
     .map((outfit) => {
       const matchScore = scoreOutfit(outfit, prefs);
       const explanation = buildExplanation(outfit, prefs, matchScore);
@@ -114,8 +111,6 @@ export function generateRecommendations(
     .filter((r) => r.matchScore > 0)
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, limit);
-
-  return scored;
 }
 
 export function replaceOutfitItem(

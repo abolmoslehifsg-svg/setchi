@@ -21,6 +21,8 @@ export function Header() {
   const { totalItems } = useCart();
   const { favorites } = useFavorites();
 
+  if (pathname?.includes("/admin")) return null;
+
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/" || pathname?.endsWith("/setchi") || pathname?.endsWith("/setchi/");
     return pathname?.includes(href.replace(/\/$/, "")) ?? false;

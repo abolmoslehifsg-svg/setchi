@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { OutfitCard } from "@/components/OutfitCard";
 import { outfits } from "@/data/outfits";
+import { getOutfitTotalPrice } from "@/data/products";
 import { FashionStyle, Occasion } from "@/types";
 
 const styleOptions: { value: FashionStyle | "all"; label: string }[] = [
@@ -34,11 +35,12 @@ const colorOptions = [
   { value: "Navy", label: "سرمه‌ای" },
 ];
 
+/** Labels must match filter logic exactly */
 const budgetOptions = [
   { value: "all", label: "همه بودجه‌ها" },
-  { value: "budget", label: "اقتصادی (تا ۵ م)" },
-  { value: "mid", label: "متوسط (۴–۹ م)" },
-  { value: "premium", label: "پریمیوم (۷ م+)" },
+  { value: "budget", label: "اقتصادی (کمتر از ۵ م)" },
+  { value: "mid", label: "متوسط (۵ تا کمتر از ۸ م)" },
+  { value: "premium", label: "پریمیوم (۸ م به بالا)" },
 ];
 
 export default function OutfitsPage() {
@@ -53,9 +55,10 @@ export default function OutfitsPage() {
       if (occasion !== "all" && !o.occasion.includes(occasion)) return false;
       if (color !== "all" && !o.colors.some((c) => c.includes(color))) return false;
       if (budget !== "all") {
-        if (budget === "budget" && o.estimatedPrice > 5000000) return false;
-        if (budget === "mid" && (o.estimatedPrice < 4000000 || o.estimatedPrice > 9000000)) return false;
-        if (budget === "premium" && o.estimatedPrice < 7000000) return false;
+        const total = getOutfitTotalPrice(o.items.map((i) => i.productId)) || o.estimatedPrice;
+        if (budget === "budget" && total >= 5000000) return false;
+        if (budget === "mid" && (total < 5000000 || total >= 8000000)) return false;
+        if (budget === "premium" && total < 8000000) return false;
       }
       return true;
     });

@@ -20,7 +20,6 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // ورود ادمین (بدون سرور — فقط برای پنل محلی)
     if (checkAdminCredentials(username, password)) {
       setAdminSession();
       setLoading(false);
@@ -28,7 +27,6 @@ export default function LoginPage() {
       return;
     }
 
-    // مسیر کاربر عادی: بدون Supabase روی استاتیک، پیام واضح
     setLoading(false);
     setError(
       "ورود کاربر عادی فعلاً روی نسخه استاتیک فعال نیست. اگر ادمین هستی، آیدی و رمز ادمین را وارد کن."
@@ -56,7 +54,7 @@ export default function LoginPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-            placeholder="مثلاً tenmanogod"
+            placeholder="نام کاربری"
             dir="ltr"
           />
         </div>

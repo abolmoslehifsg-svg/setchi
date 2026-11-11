@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { products, formatPrice } from "@/data/products";
+import {
+  formatPrice,
+  getAllProducts,
+  LiveProduct,
+  products as seedProducts,
+} from "@/data/products";
 import { ProductCategory } from "@/types";
 
 const categoryLabels: Record<ProductCategory | "all", string> = {
@@ -18,11 +23,23 @@ const categoryLabels: Record<ProductCategory | "all", string> = {
 
 export default function ProductsPage() {
   const [category, setCategory] = useState<ProductCategory | "all">("all");
+  const [list, setList] = useState<LiveProduct[]>(seedProducts);
+
+  useEffect(() => {
+    const sync = () => setList(getAllProducts());
+    sync();
+    window.addEventListener("setchi-catalog-updated", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("setchi-catalog-updated", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   const filtered = useMemo(() => {
-    if (category === "all") return products;
-    return products.filter((p) => p.category === category);
-  }, [category]);
+    if (category === "all") return list;
+    return list.filter((p) => p.category === category);
+  }, [category, list]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
@@ -35,7 +52,6 @@ export default function ProductsPage() {
         </p>
       </div>
 
-      {/* Category filters */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4 mb-8">
         {(Object.keys(categoryLabels) as (ProductCategory | "all")[]).map(
           (cat) => (
@@ -55,15 +71,13 @@ export default function ProductsPage() {
         )}
       </div>
 
-      <p className="mb-6 text-sm text-[var(--secondary)]">
-        {filtered.length} محصول
-      </p>
+      <p className="mb-6 text-sm text-[var(--secondary)]">{filtered.length} محصول</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {filtered.map((p) => (
           <Link
             key={p.id}
-            href={`/products/${p.id}`}
+            href={`/products/${p.id}/`}
             className="group block overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:shadow-md transition-shadow"
           >
             <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">
@@ -82,9 +96,12 @@ export default function ProductsPage() {
               <h3 className="font-semibold text-sm sm:text-base group-hover:text-[var(--accent)] transition-colors line-clamp-1">
                 {p.nameFa}
               </h3>
-              <p className="mt-1.5 text-sm font-medium">
-                {formatPrice(p.price)}
-              </p>
+              <p className="mt-1.5 text-sm font-medium">{formatPrice(p.price)}</p>
+              {p.originalPrice != null && p.originalPrice !== p.price && (
+                <p className="text-xs text-[var(--secondary)] line-through">
+                  {formatPrice(p.originalPrice)}
+                </p>
+              )}
             </div>
           </Link>
         ))}

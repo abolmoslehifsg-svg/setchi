@@ -1,12 +1,12 @@
 "use client";
 
 import { products as baseProducts } from "@/data/products";
+import { CATALOG_STORAGE_KEY } from "@/lib/catalog-storage";
 import { Product, ProductCategory, Size } from "@/types";
 import { recordPriceChange, recordSale } from "./admin-stats";
 
 export type CatalogProduct = Product & { stock: number; originalPrice?: number };
 
-const KEY = "setchi_catalog_v1";
 const DEFAULT_STOCK = 10;
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80";
@@ -22,7 +22,7 @@ function fromBase(): CatalogProduct[] {
 export function loadCatalog(): CatalogProduct[] {
   if (typeof window === "undefined") return fromBase();
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(CATALOG_STORAGE_KEY);
     if (!raw) return fromBase();
     const parsed = JSON.parse(raw) as CatalogProduct[];
     if (!Array.isArray(parsed) || !parsed.length) return fromBase();
@@ -39,9 +39,14 @@ export function loadCatalog(): CatalogProduct[] {
 export function saveCatalog(items: CatalogProduct[]) {
   if (typeof window === "undefined") return;
   localStorage.setItem(
-    KEY,
+    CATALOG_STORAGE_KEY,
     JSON.stringify(items.map((p) => ({ ...p, inStock: p.stock > 0 })))
   );
+  try {
+    window.dispatchEvent(new Event("setchi-catalog-updated"));
+  } catch {
+    /* ignore */
+  }
 }
 
 function uidProduct() {
@@ -150,7 +155,6 @@ export function clearCategoryDiscount(category: ProductCategory | "all") {
   return list;
 }
 
-/** افزایش روی قیمت اصلی؛ نسبت تخفیف فعال حفظ می‌شود. */
 export function applyCategoryPriceIncrease(
   category: ProductCategory | "all",
   percent: number

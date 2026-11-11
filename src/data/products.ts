@@ -1,4 +1,5 @@
 import { Product } from "@/types";
+import { CATALOG_STORAGE_KEY } from "@/lib/catalog-storage";
 
 export const products: Product[] = [
   {
@@ -69,91 +70,91 @@ export const products: Product[] = [
     colors: ["Black", "Olive", "Beige", "Khaki"],
     images: ["https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&q=80"],
     inStock: true,
-    tags: ["cargo", "utility", "streetwear", "casual"],
+    tags: ["cargo", "relaxed", "utility", "streetwear"],
   },
   {
     id: "p6",
-    name: "Straight Fit Chinos",
-    nameFa: "شلوار چینی استریت",
-    description: "Clean straight fit chinos.",
-    descriptionFa: "شلوار چینی فیت استریت از تویل پنبه‌ای.",
+    name: "Wide Leg Trousers",
+    nameFa: "شلوار گشاد",
+    description: "Wide leg tailored trousers.",
+    descriptionFa: "شلوار گشاد با برش تمیز.",
     category: "cargo-pants",
-    price: 1290000,
+    price: 1790000,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Beige", "Black", "Navy", "Olive"],
-    images: ["https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&q=80"],
+    colors: ["Black", "Beige", "Gray"],
+    images: ["https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&q=80"],
     inStock: true,
-    tags: ["chinos", "minimal", "smart-casual"],
+    tags: ["wide", "tailored", "minimal"],
   },
   {
     id: "p7",
     name: "Oversized Bomber Jacket",
     nameFa: "کاپشن بمبر اورسایز",
     description: "Oversized bomber jacket.",
-    descriptionFa: "کاپشن بمبر اورسایز با لبه کشی.",
+    descriptionFa: "کاپشن بمبر اورسایز.",
     category: "jacket",
     price: 2890000,
     sizes: ["M", "L", "XL"],
     colors: ["Black", "Olive", "Navy"],
-    images: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80"],
+    images: ["https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80"],
     inStock: true,
     tags: ["bomber", "outerwear", "streetwear"],
   },
   {
     id: "p8",
-    name: "Lightweight Utility Jacket",
-    nameFa: "کاپشن یوتیلیتی سبک",
-    description: "Lightweight utility jacket.",
-    descriptionFa: "کاپشن یوتیلیتی سبک با جیب‌های متعدد.",
+    name: "Lightweight Windbreaker",
+    nameFa: "بادگیر سبک",
+    description: "Packable lightweight windbreaker.",
+    descriptionFa: "بادگیر سبک و جمع‌شو.",
     category: "jacket",
-    price: 2490000,
+    price: 1690000,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "Beige", "Olive"],
-    images: ["https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80"],
+    colors: ["Black", "Olive", "Gray"],
+    images: ["https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=800&q=80"],
     inStock: true,
-    tags: ["utility", "lightweight", "modern"],
+    tags: ["windbreaker", "light", "sporty"],
   },
   {
     id: "p9",
-    name: "Chunky Sneakers",
-    nameFa: "اسنیکرز چانکی",
-    description: "Chunky sole sneakers.",
-    descriptionFa: "اسنیکرز با Sole چانکی.",
+    name: "Chunky Sole Sneakers",
+    nameFa: "اسنیکرز زیره ضخیم",
+    description: "Chunky sole everyday sneakers.",
+    descriptionFa: "اسنیکرز روزمره با زیره ضخیم.",
     category: "sneakers",
-    price: 3290000,
-    sizes: ["S", "M", "L", "XL"],
+    price: 2490000,
+    sizes: ["40", "41", "42", "43", "44", "45"],
     colors: ["White", "Black", "Gray"],
-    images: ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80"],
+    images: ["https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80"],
     inStock: true,
     tags: ["sneakers", "chunky", "streetwear"],
   },
   {
     id: "p10",
-    name: "Minimal Leather Sneakers",
-    nameFa: "اسنیکرز چرم مینیمال",
-    description: "Clean minimal leather sneakers.",
-    descriptionFa: "اسنیکرز چرم مینیمال تمیز.",
+    name: "Minimal Court Sneakers",
+    nameFa: "اسنیکرز کورت مینیمال",
+    description: "Clean court-style sneakers.",
+    descriptionFa: "اسنیکرز کورت مینیمال.",
     category: "sneakers",
-    price: 2790000,
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["White", "Black", "Beige"],
-    images: ["https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80"],
+    price: 1990000,
+    sizes: ["40", "41", "42", "43", "44"],
+    colors: ["White", "Black"],
+    images: ["https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&q=80"],
     inStock: true,
-    tags: ["minimal", "leather", "clean"],
+    tags: ["court", "minimal", "clean"],
   },
   {
     id: "p11",
-    name: "Canvas Cap",
-    nameFa: "کلاه کپ کانواس",
-    description: "Structured canvas cap.",
-    descriptionFa: "کلاه کپ کانواس ساختاریافته.",
+    name: "Structured Cap",
+    nameFa: "کلاه ساختار‌دار",
+    description: "Structured cotton cap.",
+    descriptionFa: "کلاه نخی ساختار‌دار.",
     category: "accessories",
     price: 490000,
     sizes: ["M"],
     colors: ["Black", "Beige", "Olive"],
-    images: ["https://images.unsplash.com/photo-1588850561407-ed78ebb29543?w=800&q=80"],
+    images: ["https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&q=80"],
     inStock: true,
-    tags: ["cap", "accessory", "casual"],
+    tags: ["cap", "accessory"],
   },
   {
     id: "p12",
@@ -171,22 +172,42 @@ export const products: Product[] = [
   },
 ];
 
-export function getProductById(id: string): Product | undefined {
-  return products.find((p) => p.id === id);
+export type LiveProduct = Product & { stock?: number; originalPrice?: number };
+
+function readLiveCatalog(): LiveProduct[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CATALOG_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as LiveProduct[];
+    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
-export function getProductsByCategory(category: string): Product[] {
-  return products.filter((p) => p.category === category);
+/** Base seed + admin overrides from localStorage (client). */
+export function getAllProducts(): LiveProduct[] {
+  return readLiveCatalog() ?? products;
+}
+
+export function getProductById(id: string): LiveProduct | undefined {
+  return getAllProducts().find((p) => p.id === id);
+}
+
+export function getProductsByCategory(category: string): LiveProduct[] {
+  return getAllProducts().filter((p) => p.category === category);
 }
 
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
 }
 
-/** Sum of product prices — single source of truth for outfit totals */
 export function getOutfitTotalPrice(productIds: string[]): number {
+  const list = getAllProducts();
   return productIds.reduce((sum, id) => {
-    const p = products.find((x) => x.id === id);
+    const p = list.find((x) => x.id === id);
     return sum + (p?.price ?? 0);
   }, 0);
 }

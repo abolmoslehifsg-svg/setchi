@@ -187,7 +187,6 @@ function readLiveCatalog(): LiveProduct[] | null {
   }
 }
 
-/** Base seed + admin overrides from localStorage (client). */
 export function getAllProducts(): LiveProduct[] {
   return readLiveCatalog() ?? products;
 }
@@ -196,8 +195,12 @@ export function getProductById(id: string): LiveProduct | undefined {
   return getAllProducts().find((p) => p.id === id);
 }
 
-export function getProductsByCategory(category: string): LiveProduct[] {
-  return getAllProducts().filter((p) => p.category === category);
+const SEED_IDS = new Set(products.map((p) => p.id));
+
+export function productHref(id: string): string {
+  return SEED_IDS.has(id)
+    ? `/products/${id}/`
+    : `/products/view/?id=${encodeURIComponent(id)}`;
 }
 
 export function formatPrice(price: number): string {

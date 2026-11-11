@@ -1,6 +1,7 @@
 "use client";
 import { products as baseProducts } from "@/data/products";
 import { Product, ProductCategory, Size } from "@/types";
+import { recordSale } from "./admin-stats";
 
 export type CatalogProduct = Product & { stock: number; originalPrice?: number };
 const KEY = "setchi_catalog_v1";
@@ -89,11 +90,13 @@ export function removeProduct(id: string) {
 }
 
 export function sellOne(id: string) {
-  return updateProduct(id, {
-    stock: Math.max(0, (loadCatalog().find((p) => p.id === id)?.stock ?? 1) - 1),
-  });
+  const cur = loadCatalog().find((p) => p.id === id);
+  if (!cur || cur.stock <= 0) return loadCatalog();
+  recordSale(cur.id, cur.nameFa, cur.price);
+  return updateProduct(id, { stock: Math.max(0, cur.stock - 1) });
 }
 
+/** تخفیف روی قیمت اصلی (originalPrice یا price فعلی) */
 export function applyCategoryDiscount(category: ProductCategory | "all", percent: number) {
   const pct = Math.min(90, Math.max(0, percent));
   const list = loadCatalog().map((p) => {
@@ -110,6 +113,30 @@ export function clearCategoryDiscount(category: ProductCategory | "all") {
     if (category !== "all" && p.category !== category) return p;
     if (p.originalPrice == null) return p;
     return { ...p, price: p.originalPrice, originalPrice: undefined };
+  });
+  saveCatalog(list);
+  return list;
+}
+
+/** افزایش قیمت روی قیمت اصلی — نه روی قیمت تخفیف‌خورده */
+export function applyCategoryPriceIncrease(
+  category: ProductCategory | "all",
+  percent: number
+) {
+  const pct = Math.min(200, Math.max(0, percent));
+  const list = loadCatalog().map((p) => {
+    if (category !== "all" && p.category !== category) return p;
+    const base = p.originalPrice ?? p.price;
+    const nextBase = Math.round(base * (1 + pct / 100));
+    if (p.originalPrice != null && p.originalPrice !== p.price) {
+      const discRatio = p.price / p.originalPrice;
+      return {
+        ...p,
+        originalPrice: nextBase,
+        price: Math.round(nextBase * discRatio),
+      };
+    }
+    return { ...p, price: nextBase, originalPrice: undefined };
   });
   saveCatalog(list);
   return list;

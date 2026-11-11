@@ -3,6 +3,7 @@ import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SeasonalTheme } from "@/components/SeasonalTheme";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { WardrobeProvider } from "@/context/WardrobeContext";
@@ -29,6 +30,7 @@ export default function RootLayout({
         <CartProvider>
           <FavoritesProvider>
             <WardrobeProvider>
+              <SeasonalTheme />
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />

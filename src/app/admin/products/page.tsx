@@ -13,7 +13,19 @@ import {
   sellOne,
   updateProduct,
 } from "@/lib/admin-catalog";
+import {
+  PriceChangeRecord,
+  clearPriceChanges,
+  getPriceChanges,
+} from "@/lib/admin-stats";
 import { ProductCategory } from "@/types";
+
+const SOURCE_LABEL: Record<PriceChangeRecord["source"], string> = {
+  manual: "دستی",
+  discount: "تخفیف",
+  increase: "افزایش",
+  "clear-discount": "حذف تخفیف",
+};
 
 export default function AdminProductsPage() {
   const [items, setItems] = useState<CatalogProduct[]>([]);
@@ -23,9 +35,13 @@ export default function AdminProductsPage() {
   const [category, setCategory] = useState<ProductCategory>("oversized-tshirt");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("10");
+  const [history, setHistory] = useState<PriceChangeRecord[]>([]);
+
+  const refreshHistory = () => setHistory(getPriceChanges(40));
 
   useEffect(() => {
     setItems(loadCatalog());
+    refreshHistory();
   }, []);
 
   const filtered = useMemo(() => {
@@ -84,6 +100,14 @@ export default function AdminProductsPage() {
     setItems(next);
     flash(`${Math.max(0, next.length - before)} ردیف`);
   };
+
+  const fmtTime = (t: number) =>
+    new Date(t).toLocaleString("fa-IR", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   return (
     <div className="px-4 sm:px-6 py-8 max-w-6xl" dir="rtl">
@@ -182,7 +206,7 @@ export default function AdminProductsPage() {
         />
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] mb-8">
         <table className="w-full text-sm min-w-[720px]">
           <thead className="bg-[var(--muted)]">
             <tr>
@@ -212,7 +236,12 @@ export default function AdminProductsPage() {
                         parseInt(e.target.value.replace(/[^\d]/g, ""), 10) || 0;
                       if (v !== p.price) {
                         setItems(updateProduct(p.id, { price: v }));
-                        flash("قیمت ذخیره شد");
+                        refreshHistory();
+                        const delta = v - p.price;
+                        const sign = delta > 0 ? "+" : "";
+                        flash(
+                          `${formatPrice(p.price)} → ${formatPrice(v)} (${sign}${formatPrice(Math.abs(delta))})`
+                        );
                       }
                     }}
                     className="w-28 rounded-lg border border-[var(--border)] px-2 py-1 text-sm bg-white"
@@ -272,6 +301,64 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+
+      <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 text-right">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="font-bold">تاریخچه تغییر قیمت</h2>
+          {history.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("پاک کردن تاریخچه؟")) {
+                  clearPriceChanges();
+                  refreshHistory();
+                }
+              }}
+              className="text-xs text-[var(--secondary)] hover:text-red-600"
+            >
+              پاک کردن
+            </button>
+          )}
+        </div>
+        {history.length === 0 ? (
+          <p className="text-sm text-[var(--secondary)]">
+            هنوز تغییری ثبت نشده. با ویرایش قیمت در جدول یا اعمال تخفیف/افزایش اینجا پر می‌شود.
+          </p>
+        ) : (
+          <ul className="space-y-2 max-h-80 overflow-y-auto">
+            {history.map((h) => {
+              const up = h.delta > 0;
+              return (
+                <li
+                  key={h.id}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-sm border-b border-[var(--border)] pb-2 last:border-0"
+                >
+                  <div>
+                    <span className="font-medium">{h.nameFa}</span>
+                    <span className="text-[var(--secondary)] text-xs mr-2">
+                      · {SOURCE_LABEL[h.source]}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 tabular-nums text-xs sm:text-sm">
+                    <span className="text-[var(--secondary)]">{formatPrice(h.from)}</span>
+                    <span>→</span>
+                    <span className="font-medium">{formatPrice(h.to)}</span>
+                    <span
+                      className={
+                        up ? "text-emerald-600" : "text-red-600"
+                      }
+                    >
+                      ({up ? "+" : "−"}
+                      {formatPrice(Math.abs(h.delta))})
+                    </span>
+                    <span className="text-[var(--secondary)]">{fmtTime(h.at)}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

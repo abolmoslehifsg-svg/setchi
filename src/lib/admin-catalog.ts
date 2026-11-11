@@ -1,7 +1,7 @@
 "use client";
 import { products as baseProducts } from "@/data/products";
 import { Product, ProductCategory, Size } from "@/types";
-import { recordSale } from "./admin-stats";
+import { recordPriceChange, recordSale } from "./admin-stats";
 
 export type CatalogProduct = Product & { stock: number; originalPrice?: number };
 const KEY = "setchi_catalog_v1";
@@ -75,6 +75,15 @@ export function addProduct(
 export function updateProduct(id: string, patch: Partial<CatalogProduct>) {
   const list = loadCatalog().map((p) => {
     if (p.id !== id) return p;
+    if (typeof patch.price === "number" && patch.price !== p.price) {
+      recordPriceChange({
+        productId: p.id,
+        nameFa: p.nameFa,
+        from: p.price,
+        to: patch.price,
+        source: "manual",
+      });
+    }
     const m = { ...p, ...patch };
     if (typeof m.stock === "number") m.inStock = m.stock > 0;
     return m;
@@ -96,13 +105,22 @@ export function sellOne(id: string) {
   return updateProduct(id, { stock: Math.max(0, cur.stock - 1) });
 }
 
-/** تخفیف روی قیمت اصلی (originalPrice یا price فعلی) */
 export function applyCategoryDiscount(category: ProductCategory | "all", percent: number) {
   const pct = Math.min(90, Math.max(0, percent));
   const list = loadCatalog().map((p) => {
     if (category !== "all" && p.category !== category) return p;
     const base = p.originalPrice ?? p.price;
-    return { ...p, originalPrice: base, price: Math.round(base * (1 - pct / 100)) };
+    const next = Math.round(base * (1 - pct / 100));
+    if (next !== p.price) {
+      recordPriceChange({
+        productId: p.id,
+        nameFa: p.nameFa,
+        from: p.price,
+        to: next,
+        source: "discount",
+      });
+    }
+    return { ...p, originalPrice: base, price: next };
   });
   saveCatalog(list);
   return list;
@@ -112,13 +130,21 @@ export function clearCategoryDiscount(category: ProductCategory | "all") {
   const list = loadCatalog().map((p) => {
     if (category !== "all" && p.category !== category) return p;
     if (p.originalPrice == null) return p;
+    if (p.originalPrice !== p.price) {
+      recordPriceChange({
+        productId: p.id,
+        nameFa: p.nameFa,
+        from: p.price,
+        to: p.originalPrice,
+        source: "clear-discount",
+      });
+    }
     return { ...p, price: p.originalPrice, originalPrice: undefined };
   });
   saveCatalog(list);
   return list;
 }
 
-/** افزایش قیمت روی قیمت اصلی — نه روی قیمت تخفیف‌خورده */
 export function applyCategoryPriceIncrease(
   category: ProductCategory | "all",
   percent: number
@@ -128,15 +154,23 @@ export function applyCategoryPriceIncrease(
     if (category !== "all" && p.category !== category) return p;
     const base = p.originalPrice ?? p.price;
     const nextBase = Math.round(base * (1 + pct / 100));
+    let nextPrice = nextBase;
+    let nextOriginal: number | undefined = undefined;
     if (p.originalPrice != null && p.originalPrice !== p.price) {
       const discRatio = p.price / p.originalPrice;
-      return {
-        ...p,
-        originalPrice: nextBase,
-        price: Math.round(nextBase * discRatio),
-      };
+      nextOriginal = nextBase;
+      nextPrice = Math.round(nextBase * discRatio);
     }
-    return { ...p, price: nextBase, originalPrice: undefined };
+    if (nextPrice !== p.price) {
+      recordPriceChange({
+        productId: p.id,
+        nameFa: p.nameFa,
+        from: p.price,
+        to: nextPrice,
+        source: "increase",
+      });
+    }
+    return { ...p, price: nextPrice, originalPrice: nextOriginal };
   });
   saveCatalog(list);
   return list;

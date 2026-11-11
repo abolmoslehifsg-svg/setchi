@@ -8,9 +8,21 @@ export type SaleRecord = {
   at: number;
 };
 
+export type PriceChangeRecord = {
+  id: string;
+  productId: string;
+  nameFa: string;
+  from: number;
+  to: number;
+  delta: number;
+  source: "manual" | "discount" | "increase" | "clear-discount";
+  at: number;
+};
+
 const VISITS_KEY = "setchi_visits_v1";
 const SALES_KEY = "setchi_sales_v1";
 const ACTIVE_KEY = "setchi_active_ping_v1";
+const PRICE_KEY = "setchi_price_changes_v1";
 
 function safeParse<T>(raw: string | null, fallback: T): T {
   if (!raw) return fallback;
@@ -81,7 +93,6 @@ export function getSalesSummary() {
   };
 }
 
-/** تقریبی: اگر در ۲۴ ساعت اخیر بازدید ثبت شده باشد */
 export function getActiveApprox(): number {
   if (typeof window === "undefined") return 0;
   try {
@@ -91,4 +102,48 @@ export function getActiveApprox(): number {
   } catch {
     return 0;
   }
+}
+
+export function recordPriceChange(entry: {
+  productId: string;
+  nameFa: string;
+  from: number;
+  to: number;
+  source?: PriceChangeRecord["source"];
+}) {
+  if (typeof window === "undefined") return;
+  if (entry.from === entry.to) return;
+  try {
+    const list = safeParse<PriceChangeRecord[]>(localStorage.getItem(PRICE_KEY), []);
+    list.unshift({
+      id: `pc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+      productId: entry.productId,
+      nameFa: entry.nameFa,
+      from: entry.from,
+      to: entry.to,
+      delta: entry.to - entry.from,
+      source: entry.source || "manual",
+      at: Date.now(),
+    });
+    localStorage.setItem(PRICE_KEY, JSON.stringify(list.slice(0, 300)));
+  } catch {}
+}
+
+export function getPriceChanges(limit = 50): PriceChangeRecord[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return safeParse<PriceChangeRecord[]>(localStorage.getItem(PRICE_KEY), []).slice(
+      0,
+      limit
+    );
+  } catch {
+    return [];
+  }
+}
+
+export function clearPriceChanges() {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(PRICE_KEY);
+  } catch {}
 }

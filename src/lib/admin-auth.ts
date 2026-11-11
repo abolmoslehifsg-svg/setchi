@@ -4,25 +4,25 @@ import { ADMIN_CONFIG } from "./admin-config";
 
 export function checkAdminCredentials(username: string, password: string): boolean {
   const u = username.trim().replace(/^@/, "").toLowerCase();
-  const p = password;
-  return (
-    u === ADMIN_CONFIG.username.toLowerCase() &&
-    p === ADMIN_CONFIG.password
-  );
+  return u === ADMIN_CONFIG.username.toLowerCase() && password === ADMIN_CONFIG.password;
 }
 
 export function setAdminSession(): void {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.setItem(ADMIN_CONFIG.sessionKey, "1");
-  } catch {}
+  } catch {
+    /* ignore quota / private mode */
+  }
 }
 
 export function clearAdminSession(): void {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.removeItem(ADMIN_CONFIG.sessionKey);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 }
 
 export function isAdminLoggedIn(): boolean {

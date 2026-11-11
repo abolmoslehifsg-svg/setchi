@@ -5,16 +5,9 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   basePath: "/setchi",
   assetPrefix: "/setchi/",
-  images: {
-    unoptimized: true,
-  },
-  // GitHub Pages static export: don't block deploy on lint/TS noise
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  images: { unoptimized: true },
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
 };
 
 export default nextConfig;

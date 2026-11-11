@@ -1,4 +1,4 @@
-// Not used in static export mode. Kept for future server deployments.
-export async function createClient() {
-  throw new Error("Server Supabase client is not available in static export mode.");
+/** Server Supabase is unavailable in static export. */
+export async function createClient(): Promise<never> {
+  throw new Error("Server Supabase is not available in static export mode.");
 }

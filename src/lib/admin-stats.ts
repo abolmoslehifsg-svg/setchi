@@ -24,13 +24,28 @@ const SALES_KEY = "setchi_sales_v1";
 const ACTIVE_KEY = "setchi_active_ping_v1";
 const PRICE_KEY = "setchi_price_changes_v1";
 
-function safeParse<T>(raw: string | null, fallback: T): T {
-  if (!raw) return fallback;
+function readJson<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
   try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
     return fallback;
   }
+}
+
+function writeJson(key: string, value: unknown) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* ignore */
+  }
+}
+
+function uid(prefix: string) {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
 }
 
 export function trackPageVisit() {
@@ -39,7 +54,9 @@ export function trackPageVisit() {
     const n = parseInt(localStorage.getItem(VISITS_KEY) || "0", 10) || 0;
     localStorage.setItem(VISITS_KEY, String(n + 1));
     localStorage.setItem(ACTIVE_KEY, String(Date.now()));
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 }
 
 export function getVisitCount(): number {
@@ -52,27 +69,13 @@ export function getVisitCount(): number {
 }
 
 export function recordSale(productId: string, nameFa: string, price: number) {
-  if (typeof window === "undefined") return;
-  try {
-    const list = safeParse<SaleRecord[]>(localStorage.getItem(SALES_KEY), []);
-    list.unshift({
-      id: `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
-      productId,
-      nameFa,
-      price,
-      at: Date.now(),
-    });
-    localStorage.setItem(SALES_KEY, JSON.stringify(list.slice(0, 200)));
-  } catch {}
+  const list = readJson<SaleRecord[]>(SALES_KEY, []);
+  list.unshift({ id: uid("s"), productId, nameFa, price, at: Date.now() });
+  writeJson(SALES_KEY, list.slice(0, 200));
 }
 
 export function getSales(): SaleRecord[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return safeParse<SaleRecord[]>(localStorage.getItem(SALES_KEY), []);
-  } catch {
-    return [];
-  }
+  return readJson<SaleRecord[]>(SALES_KEY, []);
 }
 
 export function getSalesSummary() {
@@ -84,12 +87,11 @@ export function getSalesSummary() {
     cur.total += s.price;
     byProduct.set(s.productId, cur);
   }
-  const top = Array.from(byProduct.values()).sort((a, b) => b.count - a.count);
   return {
     totalSales: sales.length,
     revenue: sales.reduce((a, s) => a + s.price, 0),
     recent: sales.slice(0, 15),
-    top,
+    top: Array.from(byProduct.values()).sort((a, b) => b.count - a.count),
   };
 }
 
@@ -97,8 +99,7 @@ export function getActiveApprox(): number {
   if (typeof window === "undefined") return 0;
   try {
     const t = parseInt(localStorage.getItem(ACTIVE_KEY) || "0", 10) || 0;
-    if (!t) return 0;
-    return Date.now() - t < 24 * 60 * 60 * 1000 ? 1 : 0;
+    return t && Date.now() - t < 24 * 60 * 60 * 1000 ? 1 : 0;
   } catch {
     return 0;
   }
@@ -111,39 +112,30 @@ export function recordPriceChange(entry: {
   to: number;
   source?: PriceChangeRecord["source"];
 }) {
-  if (typeof window === "undefined") return;
   if (entry.from === entry.to) return;
-  try {
-    const list = safeParse<PriceChangeRecord[]>(localStorage.getItem(PRICE_KEY), []);
-    list.unshift({
-      id: `pc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
-      productId: entry.productId,
-      nameFa: entry.nameFa,
-      from: entry.from,
-      to: entry.to,
-      delta: entry.to - entry.from,
-      source: entry.source || "manual",
-      at: Date.now(),
-    });
-    localStorage.setItem(PRICE_KEY, JSON.stringify(list.slice(0, 300)));
-  } catch {}
+  const list = readJson<PriceChangeRecord[]>(PRICE_KEY, []);
+  list.unshift({
+    id: uid("pc"),
+    productId: entry.productId,
+    nameFa: entry.nameFa,
+    from: entry.from,
+    to: entry.to,
+    delta: entry.to - entry.from,
+    source: entry.source || "manual",
+    at: Date.now(),
+  });
+  writeJson(PRICE_KEY, list.slice(0, 300));
 }
 
 export function getPriceChanges(limit = 50): PriceChangeRecord[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return safeParse<PriceChangeRecord[]>(localStorage.getItem(PRICE_KEY), []).slice(
-      0,
-      limit
-    );
-  } catch {
-    return [];
-  }
+  return readJson<PriceChangeRecord[]>(PRICE_KEY, []).slice(0, limit);
 }
 
 export function clearPriceChanges() {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(PRICE_KEY);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 }

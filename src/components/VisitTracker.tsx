@@ -5,7 +5,11 @@ import { trackPageVisit } from "@/lib/admin-stats";
 
 export function VisitTracker() {
   useEffect(() => {
-    trackPageVisit();
+    try {
+      trackPageVisit();
+    } catch {
+      /* never break the site over analytics */
+    }
   }, []);
   return null;
 }

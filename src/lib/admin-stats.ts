@@ -22,6 +22,7 @@ export type SaleRecord = {
 const PRICE_KEY = "setchi_price_changes_v1";
 const SALES_KEY = "setchi_sales_v1";
 const VISITS_KEY = "setchi_visits_v1";
+const VISIT_LOG_KEY = "setchi_visit_log_v1";
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -36,7 +37,11 @@ function readJson<T>(key: string, fallback: T): T {
 
 function writeJson(key: string, value: unknown) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(key, JSON.stringify(value));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* quota */
+  }
 }
 
 export function recordPriceChange(input: {
@@ -87,32 +92,62 @@ export function getSales(limit = 50): SaleRecord[] {
 export function recordVisit() {
   const n = readJson<number>(VISITS_KEY, 0) + 1;
   writeJson(VISITS_KEY, n);
+  const log = readJson<number[]>(VISIT_LOG_KEY, []);
+  writeJson(VISIT_LOG_KEY, [Date.now(), ...log].slice(0, 500));
   return n;
+}
+
+/** Used by VisitTracker on every public page load. */
+export function trackPageVisit() {
+  return recordVisit();
 }
 
 export function getVisitCount(): number {
   return readJson<number>(VISITS_KEY, 0);
 }
 
-export function getDashboardStats() {
+/** Approximate "active" sessions in the last 24h from visit timestamps. */
+export function getActiveApprox(): number {
+  const day = Date.now() - 24 * 60 * 60 * 1000;
+  const log = readJson<number[]>(VISIT_LOG_KEY, []);
+  return log.filter((t) => typeof t === "number" && t >= day).length;
+}
+
+export function getSalesSummary() {
   const sales = getSales(500);
   const revenue = sales.reduce((s, x) => s + x.price, 0);
-  const byProduct: Record<string, { nameFa: string; count: number; revenue: number }> = {};
+  const byProduct: Record<string, { nameFa: string; count: number; total: number }> = {};
   for (const s of sales) {
-    const cur = byProduct[s.productId] || { nameFa: s.nameFa, count: 0, revenue: 0 };
+    const cur = byProduct[s.productId] || { nameFa: s.nameFa, count: 0, total: 0 };
     cur.count += 1;
-    cur.revenue += s.price;
+    cur.total += s.price;
     byProduct[s.productId] = cur;
   }
-  const top = Object.entries(byProduct)
-    .map(([id, v]) => ({ id, ...v }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
+  const top = Object.values(byProduct).sort((a, b) => b.count - a.count);
+  return {
+    totalSales: sales.length,
+    revenue,
+    recent: sales.slice(0, 15).map((s) => ({
+      nameFa: s.nameFa,
+      price: s.price,
+      at: s.at,
+    })),
+    top,
+  };
+}
+
+export function getDashboardStats() {
+  const summary = getSalesSummary();
   return {
     visits: getVisitCount(),
-    salesCount: sales.length,
-    revenue,
-    topProducts: top,
-    recentSales: sales.slice(0, 15),
+    salesCount: summary.totalSales,
+    revenue: summary.revenue,
+    topProducts: summary.top.slice(0, 10).map((t) => ({
+      id: t.nameFa,
+      nameFa: t.nameFa,
+      count: t.count,
+      revenue: t.total,
+    })),
+    recentSales: getSales(15),
   };
 }

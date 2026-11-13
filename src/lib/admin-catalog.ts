@@ -1,14 +1,27 @@
 "use client";
 
 import { products as baseProducts } from "@/data/products";
-import { CATALOG_STORAGE_KEY } from "@/lib/catalog-storage";
-import { Product, ProductCategory, Size } from "@/types";
+import { CATALOG_STORAGE_KEY, CATALOG_UPDATED_EVENT } from "@/lib/catalog-storage";
+import { parseIntLoose } from "@/lib/numbers";
+import { findCategoryByText } from "@/lib/categories";
+import { Product, ProductCategory, ProductStatus, Size } from "@/types";
 import { recordPriceChange, recordSale } from "./admin-stats";
 
-export type CatalogProduct = Product & { stock: number; originalPrice?: number };
+export type CatalogProduct = Product & {
+  stock: number;
+  originalPrice?: number;
+  status?: ProductStatus;
+};
+
+export type NewProductInput = Omit<CatalogProduct, "id" | "inStock" | "status"> & {
+  id?: string;
+  status?: ProductStatus;
+};
+
+export class CatalogStorageError extends Error {}
 
 const DEFAULT_STOCK = 10;
-const FALLBACK_IMAGE =
+export const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80";
 
 function fromBase(): CatalogProduct[] {
@@ -16,6 +29,7 @@ function fromBase(): CatalogProduct[] {
     ...p,
     stock: p.inStock === false ? 0 : DEFAULT_STOCK,
     inStock: p.inStock !== false,
+    status: p.status ?? "open",
   }));
 }
 
@@ -30,20 +44,25 @@ export function loadCatalog(): CatalogProduct[] {
       ...p,
       stock: typeof p.stock === "number" ? p.stock : DEFAULT_STOCK,
       inStock: (p.stock ?? 0) > 0,
+      status: p.status ?? "open",
     }));
   } catch {
     return fromBase();
   }
 }
 
-export function saveCatalog(items: CatalogProduct[]) {
+function saveCatalog(items: CatalogProduct[]) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(
-    CATALOG_STORAGE_KEY,
-    JSON.stringify(items.map((p) => ({ ...p, inStock: p.stock > 0 })))
-  );
   try {
-    window.dispatchEvent(new Event("setchi-catalog-updated"));
+    localStorage.setItem(
+      CATALOG_STORAGE_KEY,
+      JSON.stringify(items.map((p) => ({ ...p, inStock: p.stock > 0 })))
+    );
+  } catch {
+    throw new CatalogStorageError("فضای مرورگر پر است؛ عکس‌ها را کم‌حجم‌تر کنید.");
+  }
+  try {
+    window.dispatchEvent(new Event(CATALOG_UPDATED_EVENT));
   } catch {
     /* ignore */
   }
@@ -53,9 +72,20 @@ function uidProduct() {
   return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export function addProduct(
-  data: Omit<CatalogProduct, "id" | "inStock"> & { id?: string }
-): CatalogProduct[] {
+export const hasRealImage = (p: Pick<Product, "images">) =>
+  Boolean(p.images?.length && p.images[0] && p.images[0] !== FALLBACK_IMAGE);
+
+export function publishIssues(p: CatalogProduct): { blocking: string[]; warnings: string[] } {
+  const blocking: string[] = [];
+  const warnings: string[] = [];
+  if (!p.nameFa?.trim()) blocking.push("نام فارسی لازم است");
+  if (!p.price || p.price <= 0) blocking.push("قیمت معتبر لازم است");
+  if (!hasRealImage(p)) warnings.push("عکس واقعی ندارد");
+  if (!p.sizes?.length) warnings.push("سایزی تعریف نشده");
+  return { blocking, warnings };
+}
+
+export function addProduct(data: NewProductInput): CatalogProduct[] {
   const list = loadCatalog();
   const stock = data.stock ?? DEFAULT_STOCK;
   const item: CatalogProduct = {
@@ -73,6 +103,7 @@ export function addProduct(
     stock,
     originalPrice: data.originalPrice,
     inStock: stock > 0,
+    status: data.status ?? "draft",
   };
   const next = [item, ...list];
   saveCatalog(next);
@@ -194,13 +225,11 @@ export function resetCatalogToBase() {
 }
 
 function normalizeCategory(raw: string): ProductCategory {
+  const found = findCategoryByText(raw);
+  if (found) return found.id;
   const s = raw.toLowerCase().trim();
-  if (s.includes("tshirt") || s.includes("tee") || s.includes("تی")) return "oversized-tshirt";
-  if (s.includes("hoodie") || s.includes("هودی")) return "hoodie";
-  if (s.includes("cargo") || s.includes("pants") || s.includes("شلوار")) return "cargo-pants";
-  if (s.includes("jacket") || s.includes("کت") || s.includes("کاپشن")) return "jacket";
-  if (s.includes("sneaker") || s.includes("shoe") || s.includes("کفش")) return "sneakers";
-  return "accessories";
+  if (!s) return "accessories";
+  return s.replace(/\s+/g, "-").slice(0, 48) || "accessories";
 }
 
 function splitCsvLine(line: string): string[] {
@@ -223,13 +252,13 @@ function splitCsvLine(line: string): string[] {
   return out;
 }
 
-export function parseProductsCsv(text: string) {
+export function importCsvMerge(text: string): CatalogProduct[] {
   const lines = text
     .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
-  if (lines.length < 2) return [] as Omit<CatalogProduct, "id" | "inStock">[];
+  if (lines.length < 2) return loadCatalog();
 
   const headers = splitCsvLine(lines[0]).map((h) => h.toLowerCase());
   const col = (names: string[]) =>
@@ -241,7 +270,6 @@ export function parseProductsCsv(text: string) {
   const iPrice = col(["price", "قیمت"]);
   const iStock = col(["stock", "موجودی", "inventory", "qty", "quantity"]);
 
-  const rows: Omit<CatalogProduct, "id" | "inStock">[] = [];
   for (let r = 1; r < lines.length; r++) {
     const cols = splitCsvLine(lines[r]);
     const nameFa =
@@ -250,18 +278,12 @@ export function parseProductsCsv(text: string) {
       `محصول ${r}`;
     const name = (iName >= 0 ? cols[iName] : "") || nameFa;
     const category = normalizeCategory(iCat >= 0 ? cols[iCat] : "accessories");
-    const price = Math.max(
-      0,
-      parseInt(String(iPrice >= 0 ? cols[iPrice] : "0").replace(/[^\d]/g, ""), 10) || 0
-    );
+    const price = Math.max(0, parseIntLoose(String(iPrice >= 0 ? cols[iPrice] : "0")));
     const stock = Math.max(
       0,
-      parseInt(
-        String(iStock >= 0 ? cols[iStock] : String(DEFAULT_STOCK)).replace(/[^\d]/g, ""),
-        10
-      ) || DEFAULT_STOCK
+      parseIntLoose(String(iStock >= 0 ? cols[iStock] : String(DEFAULT_STOCK)), DEFAULT_STOCK)
     );
-    rows.push({
+    addProduct({
       name,
       nameFa,
       description: "",
@@ -273,21 +295,8 @@ export function parseProductsCsv(text: string) {
       colors: ["Black"],
       images: [FALLBACK_IMAGE],
       tags: [],
+      status: "open",
     });
   }
-  return rows;
-}
-
-export function importCsvMerge(text: string) {
-  for (const row of parseProductsCsv(text)) addProduct(row);
   return loadCatalog();
 }
-
-export const CATEGORY_OPTIONS: { value: ProductCategory; label: string }[] = [
-  { value: "oversized-tshirt", label: "تی‌شرت اورسایز" },
-  { value: "hoodie", label: "هودی" },
-  { value: "cargo-pants", label: "شلوار / کارگو" },
-  { value: "jacket", label: "کاپشن / کت" },
-  { value: "sneakers", label: "کفش" },
-  { value: "accessories", label: "اکسسوری" },
-];

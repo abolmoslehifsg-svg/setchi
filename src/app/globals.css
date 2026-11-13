@@ -4,18 +4,15 @@
 
 /*
  * ═══ هویت A: Modern Organic / Premium Streetwear ═══
- * رنگ‌های برند فقط همین شش مقدار هستند؛ بقیه از آن‌ها مشتق می‌شوند.
  */
 :root {
-  /* پالت برند */
-  --brand-deep: #172B2A;     /* سبز نفتی: رنگ اصلی */
-  --brand-cream: #F5F1E8;    /* کرم روشن: پس‌زمینه */
-  --brand-charcoal: #252824; /* ذغالی: متن */
-  --brand-lime: #C7E36A;     /* سبز لیمویی: تأکید */
-  --brand-burnt: #D97736;    /* نارنجی سوخته: CTA */
-  --brand-neutral: #D9D6CE;  /* خاکستری گرم: خنثی */
+  --brand-deep: #172B2A;
+  --brand-cream: #F5F1E8;
+  --brand-charcoal: #252824;
+  --brand-lime: #C7E36A;
+  --brand-burnt: #D97736;
+  --brand-neutral: #D9D6CE;
 
-  /* نقش‌ها */
   --background: var(--brand-cream);
   --foreground: var(--brand-charcoal);
   --primary: var(--brand-deep);
@@ -26,7 +23,6 @@
   --cta-foreground: var(--brand-deep);
   --cta-hover: color-mix(in srgb, var(--brand-burnt) 86%, #fff);
 
-  /* مشتق‌ها */
   --border: var(--brand-neutral);
   --muted: color-mix(in srgb, var(--brand-neutral) 42%, var(--brand-cream));
   --secondary: color-mix(in srgb, var(--brand-charcoal) 74%, var(--brand-cream));
@@ -35,7 +31,6 @@
   --ring: var(--brand-deep);
   --field-border: color-mix(in srgb, var(--brand-charcoal) 54%, var(--brand-cream));
 
-  /* وضعیت‌ها */
   --success: #2F6B4A;
   --success-soft: #DDE9D2;
   --warning: #8A4B16;
@@ -43,7 +38,6 @@
   --danger: #A33A2B;
   --danger-soft: #F2DAD3;
 
-  /* شکل: نرم و ارگانیک */
   --radius-sm: 0.75rem;
   --radius-md: 1rem;
   --radius-lg: 1.5rem;
@@ -53,9 +47,7 @@
   --season-fx-color: color-mix(in srgb, var(--brand-deep) 16%, transparent);
 }
 
-html {
-  direction: rtl;
-}
+html { direction: rtl; }
 
 body {
   background: var(--background);
@@ -80,9 +72,7 @@ a, button {
 .outfit-image {
   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-.group:hover .outfit-image {
-  transform: scale(1.04);
-}
+.group:hover .outfit-image { transform: scale(1.04); }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -111,22 +101,14 @@ a, button {
     background: var(--cta);
     color: var(--cta-foreground);
   }
-  .btn-cta:hover {
-    background: var(--cta-hover);
-  }
-  .btn-outline {
-    border-color: var(--primary);
-  }
+  .btn-cta:hover { background: var(--cta-hover); }
+  .btn-outline { border-color: var(--primary); }
   .btn-outline:hover {
     background: var(--primary);
     color: var(--primary-foreground);
   }
-  .btn-ghost {
-    border-color: var(--border);
-  }
-  .btn-ghost:hover {
-    background: var(--muted);
-  }
+  .btn-ghost { border-color: var(--border); }
+  .btn-ghost:hover { background: var(--muted); }
 
   .site-header {
     border-bottom: 1px solid var(--border);
@@ -222,12 +204,20 @@ a, button {
   }
   .hero .eyebrow { color: var(--accent); }
   .hero .hero-title { color: var(--primary-foreground); }
-  .hero .hero-lead { color: color-mix(in srgb, var(--primary-foreground) 78%, transparent); }
+  .hero .hero-lead {
+    color: color-mix(in srgb, var(--primary-foreground) 78%, transparent);
+  }
   .hero-mark {
     background: var(--accent);
     color: var(--accent-foreground);
-    padding: 0 0.2em;
-    border-radius: 0.25em;
+    padding: 0 0.15em;
+    border-radius: 0.2em;
+    font-size: 0.78em;
+    font-weight: 700;
+    line-height: 1.15;
+    vertical-align: baseline;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
   .hero .btn-outline {
     border-color: color-mix(in srgb, var(--primary-foreground) 45%, transparent);
@@ -264,7 +254,6 @@ a, button {
   }
 }
 
-/* افکت فصلی فقط ذرات؛ رنگ از هویت */
 .season-fx {
   position: fixed;
   inset: 0;

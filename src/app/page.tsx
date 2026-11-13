@@ -54,47 +54,38 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[var(--muted)]">
-          <Image
-            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80"
-            alt="Fashion hero"
-            fill
-            className="object-cover opacity-40"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-[var(--background)] via-[var(--background)]/80 to-transparent" />
-        </div>
-
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
+      <section className="hero relative overflow-hidden">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
           <div className="max-w-xl">
-            <p className="text-sm font-medium tracking-widest text-[var(--accent)] uppercase mb-4">
-              SETCHI · ستچی
-            </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight text-[var(--foreground)]">
+            <p className="eyebrow mb-5 text-sm">SETCHI · ستچی</p>
+            <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.2] tracking-tight">
               لباس‌هایی که داری،
               <br className="hidden sm:block" />
-              استایل‌هایی که هنوز نساختی.
+              <mark className="hero-mark">استایل‌هایی</mark> که هنوز نساختی.
             </h1>
-            <p className="mt-6 text-lg text-[var(--secondary)] leading-relaxed">
+            <p className="hero-lead mt-6 text-lg leading-relaxed">
               هسته ستچی کمد هوشمند است: لباس‌هایت را ثبت کن و ترکیب واقعی از همان‌ها بساز.
               دستیار استایل و گالری مکمل همین مسیرند.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/wardrobe/"
-                className="inline-flex items-center justify-center rounded-full bg-[var(--foreground)] px-8 py-3.5 text-base font-medium text-[var(--background)] hover:bg-[var(--accent)] transition-colors"
-              >
+              <Link href="/wardrobe/" className="btn btn-cta px-8 py-3.5 text-base">
                 شروع با کمد من
               </Link>
-              <Link
-                href="/style-assistant/"
-                className="inline-flex items-center justify-center rounded-full border border-[var(--foreground)] px-8 py-3.5 text-base font-medium text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
-              >
+              <Link href="/style-assistant/" className="btn btn-outline px-8 py-3.5 text-base">
                 دستیار استایل
               </Link>
             </div>
+          </div>
+
+          <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs">
+            <Image
+              src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1000&q=80"
+              alt="Fashion hero"
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 1024px) 320px, 400px"
+            />
           </div>
         </div>
       </section>
@@ -105,7 +96,7 @@ export default function HomePage() {
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">استایل‌های منتخب</h2>
             <p className="mt-2 text-[var(--secondary)]">الهام از گالری — مکمل کمد هوشمند</p>
           </div>
-          <Link href="/outfits/" className="hidden sm:inline text-sm font-medium text-[var(--accent)] hover:underline">
+          <Link href="/outfits/" className="hidden sm:inline text-sm font-medium text-link hover:underline">
             مشاهده همه ←
           </Link>
         </div>
@@ -116,7 +107,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[var(--muted)] py-16 lg:py-24">
+      <section className="section-alt py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ستچی چطور کار می‌کنه؟</h2>
@@ -125,17 +116,14 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {steps.map((step) => (
               <div key={step.num} className="text-center md:text-right">
-                <span className="text-4xl font-light text-[var(--accent)]/40">{step.num}</span>
+                <span className="text-4xl font-light text-link opacity-40">{step.num}</span>
                 <h3 className="mt-3 text-xl font-semibold">{step.title}</h3>
                 <p className="mt-2 text-[var(--secondary)] leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
           <div className="mt-12 text-center">
-            <Link
-              href="/wardrobe/"
-              className="inline-flex rounded-full bg-[var(--accent)] px-8 py-3.5 text-base font-medium text-white hover:bg-[var(--accent-hover)] transition-colors"
-            >
+            <Link href="/wardrobe/" className="btn btn-cta inline-flex px-8 py-3.5 text-base">
               باز کردن کمد من
             </Link>
           </div>
@@ -144,13 +132,23 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">دسته‌بندی‌ها</h2>
-          <p className="mt-2 text-[var(--secondary)]">برای الهام در گالری</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">دسته‌بندی استایل</h2>
+          <p className="mt-2 text-[var(--secondary)]">مسیرهای مختلف برای شروع</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {categories.map((cat) => (
-            <Link key={cat.id} href={`/outfits/?style=${cat.id}`} className="group relative aspect-[4/5] overflow-hidden rounded-2xl">
-              <Image src={cat.image} alt={cat.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, 25vw" />
+            <Link
+              key={cat.id}
+              href={`/outfits/?style=${cat.id}`}
+              className="cat-card group relative aspect-[4/5] overflow-hidden"
+            >
+              <Image
+                src={cat.image}
+                alt={cat.title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 640px) 100vw, 25vw"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-0 right-0 left-0 p-5 text-white">
                 <h3 className="text-lg font-semibold">{cat.title}</h3>
@@ -161,7 +159,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[var(--muted)] py-16 lg:py-24">
+      <section className="section-alt py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ترکیب‌های محبوب</h2>
@@ -178,15 +176,23 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-[var(--muted)]">
-            <Image src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="SETCHI brand" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+            <Image
+              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80"
+              alt="SETCHI brand"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
           </div>
           <div>
-            <p className="text-sm font-medium tracking-widest text-[var(--accent)] uppercase mb-3">درباره ستچی</p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">مد مردانه، ساده‌تر و هوشمندتر</h2>
+            <p className="eyebrow mb-3">درباره ستچی</p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
+              مد مردانه، ساده‌تر و هوشمندتر
+            </h2>
             <p className="mt-6 text-[var(--secondary)] leading-relaxed text-lg">
               SETCHI کمک می‌کند از لباس‌هایی که داری بهتر استفاده کنی و ترکیب‌های کاربردی بسازی.
             </p>
-            <Link href="/wardrobe/" className="mt-8 inline-flex rounded-full border border-[var(--foreground)] px-7 py-3 text-sm font-medium hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
+            <Link href="/wardrobe/" className="btn btn-outline mt-8 inline-flex px-7 py-3">
               شروع با کمد من
             </Link>
           </div>

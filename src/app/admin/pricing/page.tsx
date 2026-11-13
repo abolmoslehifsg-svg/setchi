@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  CATEGORY_OPTIONS,
   applyCategoryDiscount,
   applyCategoryPriceIncrease,
   clearCategoryDiscount,
   loadCatalog,
 } from "@/lib/admin-catalog";
+import { Category, getAllCategories } from "@/lib/categories";
 import { ProductCategory } from "@/types";
-import { loadCategories } from "@/lib/categories";
 
 export default function AdminPricingPage() {
   const [msg, setMsg] = useState("");
@@ -18,18 +17,18 @@ export default function AdminPricingPage() {
   const [upCat, setUpCat] = useState<ProductCategory | "all">("all");
   const [upPct, setUpPct] = useState("10");
   const [count, setCount] = useState(0);
-  const [catOptions, setCatOptions] = useState(CATEGORY_OPTIONS);
+  const [cats, setCats] = useState<Category[]>([]);
 
   useEffect(() => {
     setCount(loadCatalog().length);
-    setCatOptions(loadCategories());
+    setCats(getAllCategories());
   }, []);
 
   const flash = (t: string) => {
     setMsg(t);
     setTimeout(() => setMsg(""), 2500);
     setCount(loadCatalog().length);
-    setCatOptions(loadCategories());
+    setCats(getAllCategories());
   };
 
   return (
@@ -53,8 +52,8 @@ export default function AdminPricingPage() {
               className="mt-1 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm bg-white text-right"
             >
               <option value="all">همه</option>
-              {catOptions.map((c) => (
-                <option key={c.value} value={c.value}>
+              {cats.map((c) => (
+                <option key={c.id} value={c.id}>
                   {c.label}
                 </option>
               ))}
@@ -110,8 +109,8 @@ export default function AdminPricingPage() {
               className="mt-1 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm bg-white text-right"
             >
               <option value="all">همه</option>
-              {catOptions.map((c) => (
-                <option key={c.value} value={c.value}>
+              {cats.map((c) => (
+                <option key={c.id} value={c.id}>
                   {c.label}
                 </option>
               ))}

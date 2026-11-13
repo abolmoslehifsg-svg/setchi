@@ -18,6 +18,11 @@ export const BUILTIN_CATEGORIES: Category[] = [
   { id: "accessories", label: "اکسسوری", sizes: FREE_SIZE, custom: false },
 ];
 
+/** Built-in labels map (legacy callers). Prefer categoryLabel() for custom categories. */
+export const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  BUILTIN_CATEGORIES.map((c) => [c.id, c.label])
+);
+
 const SYNONYMS: Record<BuiltinCategory, string[]> = {
   "oversized-tshirt": ["tshirt", "tee", "تیشرت", "تی شرت", "تی‌شرت", "تیشرت اورسایز"],
   hoodie: ["hoodie", "هودی", "سویشرت"],
@@ -69,8 +74,13 @@ export function getAllCategories(): Category[] {
   return [...BUILTIN_CATEGORIES, ...loadCustomCategories()];
 }
 
+/** @deprecated use getAllCategories */
+export function loadCategories(): { value: string; label: string }[] {
+  return getAllCategories().map((c) => ({ value: c.id, label: c.label }));
+}
+
 export function categoryLabel(id: ProductCategory, list: Category[] = getAllCategories()): string {
-  return list.find((c) => c.id === id)?.label ?? id;
+  return list.find((c) => c.id === id)?.label ?? CATEGORY_LABELS[id] ?? id;
 }
 
 export function defaultSizesFor(id: ProductCategory, list: Category[] = getAllCategories()): Size[] {

@@ -1,26 +1,31 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice, productHref } from "@/data/products";
-import { CATEGORY_LABELS } from "@/lib/categories";
+import { Category, categoryLabel, getAllCategories } from "@/lib/categories";
 import { useLiveCatalog } from "@/lib/use-live-catalog";
 import { ProductCategory } from "@/types";
 
-const categoryLabels: Record<ProductCategory | "all", string> = {
-  all: "همه",
-  ...CATEGORY_LABELS,
-};
-
 export default function ProductsPage() {
   const [category, setCategory] = useState<ProductCategory | "all">("all");
+  const [cats, setCats] = useState<Category[]>([]);
   const { products: list } = useLiveCatalog();
+
+  useEffect(() => {
+    setCats(getAllCategories());
+  }, []);
 
   const filtered = useMemo(() => {
     if (category === "all") return list;
     return list.filter((p) => p.category === category);
   }, [category, list]);
+
+  const filters: { id: ProductCategory | "all"; label: string }[] = [
+    { id: "all", label: "همه" },
+    ...cats.map((c) => ({ id: c.id, label: c.label })),
+  ];
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
@@ -34,22 +39,20 @@ export default function ProductsPage() {
       </div>
 
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4 mb-8">
-        {(Object.keys(categoryLabels) as (ProductCategory | "all")[]).map(
-          (cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategory(cat)}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                category === cat
-                  ? "bg-[var(--foreground)] text-[var(--background)]"
-                  : "bg-[var(--muted)] hover:bg-[var(--border)]"
-              }`}
-            >
-              {categoryLabels[cat]}
-            </button>
-          )
-        )}
+        {filters.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => setCategory(cat.id)}
+            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              category === cat.id
+                ? "bg-[var(--foreground)] text-[var(--background)]"
+                : "bg-[var(--muted)] hover:bg-[var(--border)]"
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
       </div>
 
       <p className="mb-6 text-sm text-[var(--secondary)]">{filtered.length} محصول</p>
@@ -72,7 +75,7 @@ export default function ProductsPage() {
             </div>
             <div className="p-3 sm:p-4">
               <p className="text-xs text-[var(--secondary)] mb-1">
-                {categoryLabels[p.category]}
+                {categoryLabel(p.category, cats.length ? cats : undefined)}
               </p>
               <h3 className="font-semibold text-sm sm:text-base group-hover:text-[var(--accent)] transition-colors line-clamp-1">
                 {p.nameFa}

@@ -3,12 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { OutfitCard } from "@/components/OutfitCard";
+import { OrderPanel } from "@/components/OrderPanel";
 import { outfits } from "@/data/outfits";
-import { formatPrice } from "@/data/products";
-import { CATEGORY_LABELS } from "@/lib/categories";
+import { formatPrice, isOrderable } from "@/data/products";
+import { categoryLabel } from "@/lib/categories";
 import { useLiveProduct } from "@/lib/use-live-catalog";
 
-/** Product page body. Reads the live catalog so admin edits (price, sizes, stock) show up. */
 export function ProductDetail({ id }: { id: string }) {
   const { product, ready } = useLiveProduct(id);
 
@@ -30,8 +30,9 @@ export function ProductDetail({ id }: { id: string }) {
     );
   }
 
-  const soldOut = product.stock === 0 || product.inStock === false;
-  const hasDiscount = product.originalPrice != null && product.originalPrice !== product.price;
+  const soldOut = !isOrderable(product);
+  const hasDiscount =
+    product.originalPrice != null && product.originalPrice !== product.price;
   const relatedOutfits = outfits.filter((o) =>
     o.items.some((item) => item.productId === product.id)
   );
@@ -52,7 +53,7 @@ export function ProductDetail({ id }: { id: string }) {
 
         <div>
           <p className="text-sm text-[var(--accent)] font-medium">
-            {CATEGORY_LABELS[product.category] ?? product.category}
+            {categoryLabel(product.category)}
           </p>
           <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight">
             {product.nameFa}
@@ -105,7 +106,22 @@ export function ProductDetail({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="mt-10">
+            <OrderPanel
+              source={{ kind: "product", id: product.id, title: product.nameFa }}
+              items={[
+                {
+                  product,
+                  defaultSize: product.sizes[0],
+                  defaultColor: product.colors[0],
+                },
+              ]}
+              heading="سفارش این محصول"
+              single
+            />
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-4">
             <Link
               href="/style-assistant/"
               className="rounded-full bg-[var(--foreground)] px-7 py-3 text-sm font-medium text-[var(--background)] hover:bg-[var(--accent)] transition-colors"

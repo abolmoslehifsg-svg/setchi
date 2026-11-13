@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import {
   CATEGORY_OPTIONS,
-  getCategoryOptions,
   applyCategoryDiscount,
   applyCategoryPriceIncrease,
   clearCategoryDiscount,
   loadCatalog,
 } from "@/lib/admin-catalog";
 import { ProductCategory } from "@/types";
+import { loadCategories } from "@/lib/categories";
 
 export default function AdminPricingPage() {
   const [msg, setMsg] = useState("");
@@ -22,14 +22,14 @@ export default function AdminPricingPage() {
 
   useEffect(() => {
     setCount(loadCatalog().length);
-    setCatOptions(getCategoryOptions());
+    setCatOptions(loadCategories());
   }, []);
 
   const flash = (t: string) => {
     setMsg(t);
     setTimeout(() => setMsg(""), 2500);
     setCount(loadCatalog().length);
-    setCatOptions(getCategoryOptions());
+    setCatOptions(loadCategories());
   };
 
   return (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   CATEGORY_OPTIONS,
+  getCategoryOptions,
   applyCategoryDiscount,
   applyCategoryPriceIncrease,
   clearCategoryDiscount,
@@ -17,15 +18,18 @@ export default function AdminPricingPage() {
   const [upCat, setUpCat] = useState<ProductCategory | "all">("all");
   const [upPct, setUpPct] = useState("10");
   const [count, setCount] = useState(0);
+  const [catOptions, setCatOptions] = useState(CATEGORY_OPTIONS);
 
   useEffect(() => {
     setCount(loadCatalog().length);
+    setCatOptions(getCategoryOptions());
   }, []);
 
   const flash = (t: string) => {
     setMsg(t);
     setTimeout(() => setMsg(""), 2500);
     setCount(loadCatalog().length);
+    setCatOptions(getCategoryOptions());
   };
 
   return (
@@ -49,7 +53,7 @@ export default function AdminPricingPage() {
               className="mt-1 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm bg-white text-right"
             >
               <option value="all">همه</option>
-              {CATEGORY_OPTIONS.map((c) => (
+              {catOptions.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>
@@ -106,7 +110,7 @@ export default function AdminPricingPage() {
               className="mt-1 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm bg-white text-right"
             >
               <option value="all">همه</option>
-              {CATEGORY_OPTIONS.map((c) => (
+              {catOptions.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>

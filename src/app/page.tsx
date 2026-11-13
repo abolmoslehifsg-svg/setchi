@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { OutfitCard } from "@/components/OutfitCard";
+import { HomeHero } from "@/components/HomeHero";
 import { outfits } from "@/data/outfits";
 
 const categories = [
@@ -54,41 +55,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="hero relative overflow-hidden">
-        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
-          <div className="max-w-xl">
-            <p className="eyebrow mb-5 text-sm">SETCHI · ستچی</p>
-            <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.35] tracking-tight">
-              لباس‌هایی که داری،
-              <br className="hidden sm:block" />
-              <mark className="hero-mark">استایل‌هایی</mark> که هنوز نساختی.
-            </h1>
-            <p className="hero-lead mt-6 text-lg leading-relaxed">
-              هسته ستچی کمد هوشمند است: لباس‌هایت را ثبت کن و ترکیب واقعی از همان‌ها بساز.
-              دستیار استایل و گالری مکمل همین مسیرند.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link href="/wardrobe/" className="btn btn-cta px-8 py-3.5 text-base">
-                شروع با کمد من
-              </Link>
-              <Link href="/style-assistant/" className="btn btn-outline px-8 py-3.5 text-base">
-                دستیار استایل
-              </Link>
-            </div>
-          </div>
-
-          <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs">
-            <Image
-              src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1000&q=80"
-              alt="استایل مردانه"
-              fill
-              className="object-cover object-top"
-              priority
-              sizes="(max-width: 1024px) 320px, 400px"
-            />
-          </div>
-        </div>
-      </section>
+      <HomeHero />
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="flex items-end justify-between mb-10">
@@ -113,17 +80,17 @@ export default function HomePage() {
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ستچی چطور کار می‌کنه؟</h2>
             <p className="mt-3 text-[var(--secondary)]">مسیر واقعی استفاده از کمد هوشمند</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            {steps.map((step) => (
-              <div key={step.num} className="text-center md:text-right">
-                <span className="text-4xl font-light text-link opacity-40">{step.num}</span>
-                <h3 className="mt-3 text-xl font-semibold">{step.title}</h3>
-                <p className="mt-2 text-[var(--secondary)] leading-relaxed">{step.desc}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps.map((s) => (
+              <div key={s.num} className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-right">
+                <span className="text-sm font-bold text-[var(--accent)]">{s.num}</span>
+                <h3 className="mt-3 text-lg font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm text-[var(--secondary)] leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
-          <div className="mt-12 text-center">
-            <Link href="/wardrobe/" className="btn btn-cta inline-flex px-8 py-3.5 text-base">
+          <div className="mt-10 text-center">
+            <Link href="/wardrobe/" className="btn btn-cta inline-flex px-8 py-3">
               باز کردن کمد من
             </Link>
           </div>
@@ -135,12 +102,12 @@ export default function HomePage() {
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">دسته‌بندی استایل</h2>
           <p className="mt-2 text-[var(--secondary)]">مسیرهای مختلف برای شروع</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               href={`/outfits/?style=${cat.id}`}
-              className="cat-card group relative aspect-[4/5] overflow-hidden"
+              className="group relative block rounded-2xl overflow-hidden aspect-[4/5]"
             >
               <Image
                 src={cat.image}

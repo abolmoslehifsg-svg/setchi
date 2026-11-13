@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { OutfitCard } from "@/components/OutfitCard";
-import { outfits } from "@/data/outfits";
 import { getOutfitTotalPrice } from "@/data/products";
-import { FashionStyle, Occasion } from "@/types";
+import { loadOutfits, OUTFITS_UPDATED_EVENT } from "@/lib/outfits-storage";
+import { FashionStyle, Occasion, Outfit } from "@/types";
 
 const styleOptions: { value: FashionStyle | "all"; label: string }[] = [
   { value: "all", label: "همه" },
@@ -35,7 +35,6 @@ const colorOptions = [
   { value: "Navy", label: "سرمه‌ای" },
 ];
 
-/** Labels must match filter logic exactly */
 const budgetOptions = [
   { value: "all", label: "همه بودجه‌ها" },
   { value: "budget", label: "اقتصادی (کمتر از ۵ م)" },
@@ -44,13 +43,21 @@ const budgetOptions = [
 ];
 
 export default function OutfitsPage() {
+  const [list, setList] = useState<Outfit[]>([]);
   const [style, setStyle] = useState<FashionStyle | "all">("all");
   const [occasion, setOccasion] = useState<Occasion | "all">("all");
   const [color, setColor] = useState("all");
   const [budget, setBudget] = useState("all");
 
+  useEffect(() => {
+    const sync = () => setList(loadOutfits());
+    sync();
+    window.addEventListener(OUTFITS_UPDATED_EVENT, sync);
+    return () => window.removeEventListener(OUTFITS_UPDATED_EVENT, sync);
+  }, []);
+
   const filtered = useMemo(() => {
-    return outfits.filter((o) => {
+    return list.filter((o) => {
       if (style !== "all" && !o.style.includes(style)) return false;
       if (occasion !== "all" && !o.occasion.includes(occasion)) return false;
       if (color !== "all" && !o.colors.some((c) => c.includes(color))) return false;
@@ -62,7 +69,7 @@ export default function OutfitsPage() {
       }
       return true;
     });
-  }, [style, occasion, color, budget]);
+  }, [list, style, occasion, color, budget]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
@@ -78,31 +85,13 @@ export default function OutfitsPage() {
         <FilterRow label="بودجه" options={budgetOptions} value={budget} onChange={setBudget} />
       </div>
 
-      <p className="mb-6 text-sm text-[var(--secondary)]">{filtered.length} استایل پیدا شد</p>
+      <p className="mb-6 text-sm text-[var(--secondary)]">{filtered.length} استایل</p>
 
-      {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((o) => (
-            <OutfitCard key={o.id} outfit={o} />
-          ))}
-        </div>
-      ) : (
-        <div className="py-20 text-center">
-          <p className="text-lg text-[var(--secondary)]">استایلی با این فیلترها پیدا نشد.</p>
-          <button
-            type="button"
-            onClick={() => {
-              setStyle("all");
-              setOccasion("all");
-              setColor("all");
-              setBudget("all");
-            }}
-            className="mt-4 text-[var(--accent)] font-medium hover:underline"
-          >
-            پاک کردن فیلترها
-          </button>
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((o) => (
+          <OutfitCard key={o.id} outfit={o} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -119,21 +108,21 @@ function FilterRow({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-      <span className="text-sm font-medium text-[var(--secondary)] w-16 shrink-0">{label}</span>
+    <div>
+      <p className="mb-2 text-xs font-medium text-[var(--secondary)]">{label}</p>
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-        {options.map((opt) => (
+        {options.map((o) => (
           <button
-            key={opt.value}
+            key={o.value}
             type="button"
-            onClick={() => onChange(opt.value)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              value === opt.value
+            onClick={() => onChange(o.value)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              value === o.value
                 ? "bg-[var(--foreground)] text-[var(--background)]"
-                : "bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--border)]"
+                : "bg-[var(--muted)] hover:bg-[var(--border)]"
             }`}
           >
-            {opt.label}
+            {o.label}
           </button>
         ))}
       </div>

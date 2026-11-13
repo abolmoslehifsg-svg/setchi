@@ -3,13 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { clearAdminSession, isAdminLoggedIn } from "@/lib/admin-auth";
+import {
+  clearAdminSession,
+  getAdminSession,
+  isAdminLoggedIn,
+  type AdminSession,
+} from "@/lib/admin-auth";
 
 const MENU = [
   { href: "/admin/", label: "داشبورد", icon: "⌂" },
   { href: "/admin/products/", label: "محصولات و انبار", icon: "▤" },
   { href: "/admin/categories/", label: "دسته‌بندی‌ها", icon: "☰" },
+  { href: "/admin/outfits/", label: "استایل‌ها", icon: "✦" },
   { href: "/admin/pricing/", label: "تخفیف و قیمت", icon: "%" },
+  { href: "/admin/content/", label: "محتوای سایت", icon: "✎" },
+  { href: "/admin/team/", label: "تیم / دسترسی", icon: "♟" },
 ];
 
 export default function AdminLayout({
@@ -21,11 +29,13 @@ export default function AdminLayout({
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [authed, setAuthed] = useState(false);
+  const [session, setSession] = useState<AdminSession | null>(null);
   const [open, setOpen] = useState(true);
 
   useEffect(() => {
     const ok = isAdminLoggedIn();
     setAuthed(ok);
+    setSession(getAdminSession());
     setReady(true);
     if (!ok) router.replace("/auth/login/");
   }, [router]);
@@ -61,7 +71,16 @@ export default function AdminLayout({
       >
         <div className="sticky top-0 flex h-screen flex-col">
           <div className="flex h-14 items-center justify-between border-b border-[var(--border)] px-3">
-            {open && <span className="text-sm font-bold">ادمین ستچی</span>}
+            {open && (
+              <div>
+                <span className="text-sm font-bold block">ادمین ستچی</span>
+                {session && (
+                  <span className="text-[10px] text-[var(--secondary)]" dir="ltr">
+                    {session.role === "owner" ? "مالک" : "ادمین"} · @{session.username}
+                  </span>
+                )}
+              </div>
+            )}
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}

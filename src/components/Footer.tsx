@@ -8,11 +8,11 @@ export function Footer() {
   if (pathname?.includes("/admin")) return null;
 
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--foreground)] text-[var(--background)]">
+    <footer className="site-footer mt-auto bg-[var(--primary)] text-[var(--primary-foreground)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="md:col-span-1">
-            <Link href="/" className="text-2xl font-bold tracking-tight">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="col-span-2 md:col-span-1">
+            <Link href="/" className="brand-mark footer-brand text-2xl font-bold tracking-tight">
               SETCHI
             </Link>
             <p className="mt-3 text-sm text-white/60 leading-relaxed">
@@ -23,45 +23,26 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white/40 mb-4">کاوش</h4>
             <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/outfits/" className="text-white/80 hover:text-white">استایل‌ها</Link>
-              </li>
-              <li>
-                <Link href="/style-assistant/" className="text-white/80 hover:text-white">دستیار استایل</Link>
-              </li>
-              <li>
-                <Link href="/wardrobe/" className="text-white/80 hover:text-white">کمد من</Link>
-              </li>
-              <li>
-                <Link href="/products/" className="text-white/80 hover:text-white">محصولات</Link>
-              </li>
+              <li><Link href="/outfits/" className="text-white/80 hover:text-white">استایل‌ها</Link></li>
+              <li><Link href="/style-assistant/" className="text-white/80 hover:text-white">دستیار استایل</Link></li>
+              <li><Link href="/wardrobe/" className="text-white/80 hover:text-white">کمد من</Link></li>
+              <li><Link href="/products/" className="text-white/80 hover:text-white">محصولات</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white/40 mb-4">درباره</h4>
             <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/about/" className="text-white/80 hover:text-white">درباره ستچی</Link>
-              </li>
-              <li>
-                <Link href="/contact/" className="text-white/80 hover:text-white">تماس با ما</Link>
-              </li>
-              <li>
-                <Link href="/collaborate/" className="text-white/80 hover:text-white">همکاری</Link>
-              </li>
+              <li><Link href="/about/" className="text-white/80 hover:text-white">درباره ستچی</Link></li>
+              <li><Link href="/contact/" className="text-white/80 hover:text-white">تماس با ما</Link></li>
+              <li><Link href="/collaborate/" className="text-white/80 hover:text-white">همکاری</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white/40 mb-4">شبکه‌ها</h4>
             <div className="flex flex-col gap-3 text-sm">
-              <a
-                href="https://t.me/tenmanogod"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/80 hover:text-white"
-              >
+              <a href="https://t.me/tenmanogod" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-white">
                 تلگرام @tenmanogod
               </a>
             </div>

@@ -8,6 +8,7 @@ import { clearAdminSession, isAdminLoggedIn } from "@/lib/admin-auth";
 const MENU = [
   { href: "/admin/", label: "داشبورد", icon: "⌂" },
   { href: "/admin/products/", label: "محصولات و انبار", icon: "▤" },
+  { href: "/admin/categories/", label: "دسته‌بندی‌ها", icon: "☰" },
   { href: "/admin/pricing/", label: "تخفیف و قیمت", icon: "%" },
 ];
 
@@ -29,31 +30,15 @@ export default function AdminLayout({
     if (!ok) router.replace("/auth/login/");
   }, [router]);
 
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem("setchi_admin_sidebar");
-      if (v === "0") setOpen(false);
-      if (v === "1") setOpen(true);
-    } catch {}
-  }, []);
-
-  const toggle = () => {
-    setOpen((o) => {
-      const next = !o;
-      try {
-        localStorage.setItem("setchi_admin_sidebar", next ? "1" : "0");
-      } catch {}
-      return next;
-    });
-  };
-
-  if (!ready || !authed) {
+  if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-[var(--secondary)]">
-        در حال بررسی دسترسی...
+      <div className="min-h-screen flex items-center justify-center text-sm text-[var(--secondary)]" dir="rtl">
+        در حال بررسی ورود…
       </div>
     );
   }
+
+  if (!authed) return null;
 
   const isActive = (href: string) => {
     if (href === "/admin/") {
@@ -68,77 +53,62 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex" dir="rtl">
-      {/* سایدبار — سمت چپ صفحه */}
+    <div className="min-h-screen flex bg-[var(--background)] text-[var(--foreground)]" dir="rtl">
       <aside
-        className={`fixed top-0 left-0 z-40 h-full border-r border-[var(--border)] bg-[var(--card)] transition-all duration-200 flex flex-col ${
+        className={`shrink-0 border-l border-[var(--border)] bg-[var(--card)] transition-all ${
           open ? "w-56" : "w-14"
         }`}
       >
-        <div className="flex items-center justify-between h-14 px-3 border-b border-[var(--border)]">
-          {open && (
-            <span className="font-bold text-sm tracking-tight">SETCHI Admin</span>
-          )}
-          <button
-            type="button"
-            onClick={toggle}
-            className="rounded-lg p-2 text-sm hover:bg-[var(--muted)]"
-            aria-label={open ? "جمع کردن منو" : "باز کردن منو"}
-            title={open ? "جمع کردن" : "باز کردن"}
-          >
-            {open ? "«" : "»"}
-          </button>
-        </div>
-
-        <nav className="flex-1 py-3 space-y-1 px-2">
-          {MENU.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                isActive(item.href)
-                  ? "bg-[var(--foreground)] text-[var(--background)]"
-                  : "text-[var(--secondary)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-              }`}
-              title={item.label}
+        <div className="sticky top-0 flex h-screen flex-col">
+          <div className="flex h-14 items-center justify-between border-b border-[var(--border)] px-3">
+            {open && <span className="text-sm font-bold">ادمین ستچی</span>}
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="rounded-lg p-2 text-sm hover:bg-[var(--muted)]"
+              aria-label={open ? "جمع کردن منو" : "باز کردن منو"}
             >
-              <span className="w-5 text-center shrink-0">{item.icon}</span>
-              {open && <span>{item.label}</span>}
+              {open ? "«" : "»"}
+            </button>
+          </div>
+          <nav className="flex-1 overflow-y-auto py-3">
+            {MENU.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`mx-2 mb-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm ${
+                  isActive(item.href)
+                    ? "bg-[var(--foreground)] text-[var(--background)]"
+                    : "hover:bg-[var(--muted)]"
+                }`}
+                title={item.label}
+              >
+                <span className="w-5 text-center">{item.icon}</span>
+                {open && <span>{item.label}</span>}
+              </Link>
+            ))}
+          </nav>
+          <div className="border-t border-[var(--border)] p-3 space-y-2">
+            <Link
+              href="/"
+              className="block rounded-xl px-3 py-2 text-xs text-[var(--secondary)] hover:bg-[var(--muted)]"
+            >
+              {open ? "← بازگشت به سایت" : "⌂"}
             </Link>
-          ))}
-        </nav>
-
-        <div className="p-2 border-t border-[var(--border)] space-y-1">
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--secondary)] hover:bg-[var(--muted)]"
-            title="بازگشت به سایت"
-          >
-            <span className="w-5 text-center shrink-0">↗</span>
-            {open && <span>سایت</span>}
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              clearAdminSession();
-              router.push("/auth/login/");
-            }}
-            className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-600 hover:bg-red-50"
-            title="خروج"
-          >
-            <span className="w-5 text-center shrink-0">⎋</span>
-            {open && <span>خروج</span>}
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                clearAdminSession();
+                router.replace("/auth/login/");
+              }}
+              className="w-full rounded-xl px-3 py-2 text-xs text-[var(--danger)] hover:bg-[var(--muted)] text-right"
+            >
+              {open ? "خروج" : "⎋"}
+            </button>
+          </div>
         </div>
       </aside>
-
-      <div
-        className={`flex-1 min-w-0 transition-all duration-200 ${
-          open ? "mr-0 ml-56" : "mr-0 ml-14"
-        }`}
-      >
-        {children}
-      </div>
+      <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">{children}</main>
     </div>
   );
 }

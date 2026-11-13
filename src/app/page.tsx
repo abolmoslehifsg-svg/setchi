@@ -58,7 +58,7 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
           <div className="max-w-xl">
             <p className="eyebrow mb-5 text-sm">SETCHI · ستچی</p>
-            <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.2] tracking-tight">
+            <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.35] tracking-tight">
               لباس‌هایی که داری،
               <br className="hidden sm:block" />
               <mark className="hero-mark">استایل‌هایی</mark> که هنوز نساختی.
@@ -79,10 +79,10 @@ export default function HomePage() {
 
           <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs">
             <Image
-              src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1000&q=80"
-              alt="Fashion hero"
+              src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1000&q=80"
+              alt="استایل مردانه"
               fill
-              className="object-cover"
+              className="object-cover object-top"
               priority
               sizes="(max-width: 1024px) 320px, 400px"
             />

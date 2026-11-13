@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import type { OrderSource } from "@/lib/order";
 
 export interface CartItem {
   productId: string;
@@ -10,6 +11,7 @@ export interface CartItem {
   size: string;
   color: string;
   quantity: number;
+  source?: OrderSource;
 }
 
 interface CartContextType {
@@ -68,8 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeItem = (productId: string, size: string, color: string) => {
     setItems((prev) =>
       prev.filter(
-        (i) =>
-          !(i.productId === productId && i.size === size && i.color === color)
+        (i) => !(i.productId === productId && i.size === size && i.color === color)
       )
     );
   };

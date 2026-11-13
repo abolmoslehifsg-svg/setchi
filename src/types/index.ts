@@ -29,13 +29,8 @@ export type Size = "S" | "M" | "L" | "XL" | "XXL";
 export type BudgetRange = "budget" | "mid" | "premium";
 export type FitPreference = "oversized" | "regular" | "slim";
 
-export type ProductCategory =
-  | "oversized-tshirt"
-  | "hoodie"
-  | "cargo-pants"
-  | "jacket"
-  | "sneakers"
-  | "accessories";
+/** Category id — built-in or custom (admin can add more). */
+export type ProductCategory = string;
 
 export interface Product {
   id: string;
@@ -78,23 +73,10 @@ export interface Outfit {
 
 export interface UserPreferences {
   gender: "male";
-  ageRange: string;
   styles: FashionStyle[];
+  occasions: Occasion[];
   colors: ColorPreference[];
-  sizes: { top?: Size; bottom?: Size; shoes?: string };
+  size: Size;
   budget: BudgetRange;
-  occasion: Occasion[];
-  preferredItems: ProductCategory[];
-  fit?: FitPreference;
-  dislikedStyles?: FashionStyle[];
-  heightRange?: string;
-  ownedItems?: ProductCategory[];
-  photoUrl?: string;
-}
-
-export interface RecommendationResult {
-  outfit: Outfit;
-  matchScore: number;
-  explanation: string;
-  explanationFa: string;
+  fit: FitPreference;
 }

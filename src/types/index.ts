@@ -25,12 +25,22 @@ export type ColorPreference =
   | "earth"
   | "colorful";
 
-export type Size = "S" | "M" | "L" | "XL" | "XXL";
+/** Free text on purpose: "M", "42", "28/30", "FREE"… (see lib/sizes.ts). */
+export type Size = string;
 export type BudgetRange = "budget" | "mid" | "premium";
 export type FitPreference = "oversized" | "regular" | "slim";
 
-/** Category id — built-in or custom (admin can add more). */
+export type BuiltinCategory =
+  | "oversized-tshirt"
+  | "hoodie"
+  | "cargo-pants"
+  | "jacket"
+  | "sneakers"
+  | "accessories";
+
 export type ProductCategory = string;
+
+export type ProductStatus = "draft" | "open" | "closed";
 
 export interface Product {
   id: string;
@@ -46,6 +56,7 @@ export interface Product {
   tags: string[];
   fit?: FitPreference;
   inStock?: boolean;
+  status?: ProductStatus;
 }
 
 export interface OutfitItem {
@@ -73,10 +84,23 @@ export interface Outfit {
 
 export interface UserPreferences {
   gender: "male";
+  ageRange: string;
   styles: FashionStyle[];
-  occasions: Occasion[];
   colors: ColorPreference[];
-  size: Size;
+  sizes: { top?: Size; bottom?: Size; shoes?: string };
   budget: BudgetRange;
-  fit: FitPreference;
+  occasion: Occasion[];
+  preferredItems: ProductCategory[];
+  fit?: FitPreference;
+  dislikedStyles?: FashionStyle[];
+  heightRange?: string;
+  ownedItems?: ProductCategory[];
+  photoUrl?: string;
+}
+
+export interface RecommendationResult {
+  outfit: Outfit;
+  matchScore: number;
+  explanation: string;
+  explanationFa: string;
 }

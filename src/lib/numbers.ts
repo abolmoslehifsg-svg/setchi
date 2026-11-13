@@ -10,9 +10,8 @@ export function toLatinDigits(value: string): string {
  * Reads a non-negative integer from free text ("۸٫۹۰۰", "890,000", "12 عدد").
  * Returns `fallback` only when no digits are found, so "0" stays 0.
  */
-export function parseIntLoose(value: unknown, fallback = 0): number {
-  const digits = toLatinDigits(String(value ?? "")).replace(/\D/g, "");
+export function parseIntLoose(value: string, fallback = 0): number {
+  const digits = toLatinDigits(value).replace(/[^\d]/g, "");
   if (!digits) return fallback;
-  const n = parseInt(digits, 10);
-  return Number.isFinite(n) ? n : fallback;
+  return parseInt(digits, 10) || 0;
 }

@@ -1,4 +1,4 @@
-import { ProductCategory, Size } from "@/types";
+import { Size } from "@/types";
 import { toLatinDigits } from "./numbers";
 
 const range = (from: number, to: number): Size[] =>
@@ -9,17 +9,6 @@ export const SHOE_SIZES: Size[] = range(39, 45);
 export const WAIST_SIZES: Size[] = ["28", "30", "32", "34", "36", "38"];
 export const FREE_SIZE: Size[] = ["FREE"];
 
-/** Starting point for each category; the admin can always type their own. */
-export const DEFAULT_SIZES: Record<ProductCategory, Size[]> = {
-  "oversized-tshirt": LETTER_SIZES,
-  hoodie: LETTER_SIZES,
-  jacket: LETTER_SIZES,
-  "cargo-pants": WAIST_SIZES,
-  sneakers: SHOE_SIZES,
-  accessories: FREE_SIZE,
-};
-
-/** Quick-fill buttons in the admin "add product" form. */
 export const SIZE_PRESETS: { label: string; sizes: Size[] }[] = [
   { label: "حروفی (S–XXL)", sizes: LETTER_SIZES },
   { label: "کفش (۳۹–۴۵)", sizes: SHOE_SIZES },
@@ -32,13 +21,6 @@ const MAX_SIZE_LENGTH = 12;
 const MAX_RANGE_SPAN = 30;
 const NUMERIC_RANGE = /^(\d{1,3})-(\d{1,3})$/;
 
-/**
- * Turns free text into a clean size list.
- * Accepts commas (Latin or Persian), spaces, `;` or `|` as separators,
- * Persian digits, and numeric ranges: "40-45" → 40 41 42 43 44 45.
- * Letters are upper-cased, duplicates dropped, order kept.
- * Tokens like "28/30" or "Free" are kept as typed.
- */
 export function parseSizes(input: string): Size[] {
   const tokens = toLatinDigits(input)
     .replace(/(\d)\s*[-–—~]\s*(\d)/g, "$1-$2")

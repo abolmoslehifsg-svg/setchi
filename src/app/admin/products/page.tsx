@@ -19,6 +19,7 @@ import {
   getPriceChanges,
 } from "@/lib/admin-stats";
 import { ProductCategory } from "@/types";
+import { loadCategories } from "@/lib/categories";
 
 const SOURCE_LABEL: Record<PriceChangeRecord["source"], string> = {
   manual: "دستی",
@@ -33,6 +34,7 @@ export default function AdminProductsPage() {
   const [msg, setMsg] = useState("");
   const [nameFa, setNameFa] = useState("");
   const [category, setCategory] = useState<ProductCategory>("oversized-tshirt");
+  const [catOptions, setCatOptions] = useState(CATEGORY_OPTIONS);
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("10");
   const [history, setHistory] = useState<PriceChangeRecord[]>([]);
@@ -41,6 +43,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     setItems(loadCatalog());
+    setCatOptions(loadCategories());
     refreshHistory();
   }, []);
 
@@ -148,7 +151,7 @@ export default function AdminProductsPage() {
               onChange={(e) => setCategory(e.target.value as ProductCategory)}
               className="w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm bg-white text-right"
             >
-              {CATEGORY_OPTIONS.map((c) => (
+              {catOptions.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>
@@ -222,7 +225,7 @@ export default function AdminProductsPage() {
               <tr key={p.id} className="border-t border-[var(--border)]">
                 <td className="px-3 py-2.5 font-medium text-right">{p.nameFa}</td>
                 <td className="px-3 py-2.5 text-[var(--secondary)] text-right">
-                  {CATEGORY_OPTIONS.find((c) => c.value === p.category)?.label ||
+                  {catOptions.find((c) => c.value === p.category)?.label ||
                     p.category}
                 </td>
                 <td className="px-3 py-2.5 text-right">
@@ -343,11 +346,7 @@ export default function AdminProductsPage() {
                     <span className="text-[var(--secondary)]">{formatPrice(h.from)}</span>
                     <span>→</span>
                     <span className="font-medium">{formatPrice(h.to)}</span>
-                    <span
-                      className={
-                        up ? "text-emerald-600" : "text-red-600"
-                      }
-                    >
+                    <span className={up ? "text-emerald-600" : "text-red-600"}>
                       ({up ? "+" : "−"}
                       {formatPrice(Math.abs(h.delta))})
                     </span>

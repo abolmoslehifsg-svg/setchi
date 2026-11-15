@@ -32,19 +32,22 @@ export function HomeHero() {
           </h1>
           <p className="hero-lead mt-6 text-lg leading-relaxed">{c.heroLead}</p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/wardrobe/" className="btn btn-cta px-8 py-3.5 text-base">
-              شروع با کمد من
+            <Link href={c.ctaPrimaryHref || "/wardrobe/"} className="btn btn-cta px-8 py-3.5 text-base">
+              {c.ctaPrimaryLabel}
             </Link>
-            <Link href="/style-assistant/" className="btn btn-outline px-8 py-3.5 text-base">
-              دستیار استایل
+            <Link
+              href={c.ctaSecondaryHref || "/style-assistant/"}
+              className="btn btn-outline px-8 py-3.5 text-base"
+            >
+              {c.ctaSecondaryLabel}
             </Link>
           </div>
         </div>
 
         <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs">
           <Image
-            src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1000&q=80"
-            alt="استایل مردانه"
+            src={c.heroImage}
+            alt={c.brandNameFa || "استایل"}
             fill
             className="object-cover"
             priority

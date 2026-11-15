@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import {
+  DEFAULT_SITE_CONTENT,
+  loadSiteContent,
+  SITE_CONTENT_UPDATED_EVENT,
+} from "@/lib/site-content";
 
 const navItems = [
   { href: "/", label: "خانه" },
@@ -20,6 +25,19 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const { totalItems } = useCart();
   const { favorites } = useFavorites();
+  const [brand, setBrand] = useState(DEFAULT_SITE_CONTENT.brandName);
+  const [brandFa, setBrandFa] = useState(DEFAULT_SITE_CONTENT.brandNameFa);
+
+  useEffect(() => {
+    const sync = () => {
+      const c = loadSiteContent();
+      setBrand(c.brandName);
+      setBrandFa(c.brandNameFa);
+    };
+    sync();
+    window.addEventListener(SITE_CONTENT_UPDATED_EVENT, sync);
+    return () => window.removeEventListener(SITE_CONTENT_UPDATED_EVENT, sync);
+  }, []);
 
   if (pathname?.includes("/admin")) return null;
 
@@ -32,8 +50,8 @@ export function Header() {
     <header className="site-header sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="brand-mark text-2xl font-bold tracking-tight">SETCHI</span>
-          <span className="brand-sub hidden sm:inline text-sm">ستچی</span>
+          <span className="brand-mark text-2xl font-bold tracking-tight">{brand}</span>
+          <span className="brand-sub hidden sm:inline text-sm">{brandFa}</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-6">

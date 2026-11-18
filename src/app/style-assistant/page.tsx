@@ -14,6 +14,7 @@ import {
 } from "@/types";
 import { generateRecommendations } from "@/lib/recommend";
 import { formatPrice } from "@/data/products";
+import { outfitHref } from "@/lib/outfits-storage";
 
 const STEPS = ["سن و استایل", "رنگ و بودجه", "موقعیت و سایز", "نتیجه"];
 
@@ -113,7 +114,6 @@ export default function StyleAssistantPage() {
         <p className="mt-2 text-[var(--secondary)]">دو راه داری: از کمد خودت، یا از کاتالوگ ستچی</p>
       </div>
 
-      {/* Primary path: own wardrobe */}
       <div className="mb-10 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6">
         <p className="text-xs font-medium tracking-widest text-[var(--accent)] uppercase mb-1">پیشنهادی</p>
         <h2 className="font-semibold text-lg">از لباس‌هایی که خودت داری</h2>
@@ -268,7 +268,7 @@ export default function StyleAssistantPage() {
                     <p className="mt-2 text-sm text-[var(--secondary)] flex-1">{rec.explanationFa}</p>
                     <div className="mt-4 flex justify-between items-center">
                       <span className="font-semibold">{formatPrice(rec.outfit.estimatedPrice)}</span>
-                      <Link href={`/outfits/${rec.outfit.id}/`} className="text-sm text-[var(--accent)] hover:underline">جزئیات ←</Link>
+                      <Link href={outfitHref(rec.outfit.id)} className="text-sm text-[var(--accent)] hover:underline">جزئیات ←</Link>
                     </div>
                   </div>
                 </div>

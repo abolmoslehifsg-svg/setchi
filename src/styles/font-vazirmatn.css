@@ -1,0 +1,22 @@
+/* Vazirmatn via jsDelivr (fontsource) — not Google Fonts API; works offline after first cache */
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-700-normal.woff2") format("woff2");
+}

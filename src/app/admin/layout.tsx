@@ -18,6 +18,7 @@ const MENU = [
   { href: "/admin/pricing/", label: "تخفیف و قیمت", icon: "%" },
   { href: "/admin/content/", label: "محتوای سایت", icon: "✎" },
   { href: "/admin/team/", label: "تیم / دسترسی", icon: "♟" },
+  { href: "/admin/updates/", label: "نسخه و به‌روزرسانی", icon: "↻" },
 ];
 
 export default function AdminLayout({

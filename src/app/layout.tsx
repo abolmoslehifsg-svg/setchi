@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@/styles/font-vazirmatn.css";
+import "@/styles/font-fraunces.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SeasonalTheme } from "@/components/SeasonalTheme";
@@ -20,15 +22,6 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fa" dir="rtl" className="h-full">
-      <head>
-        {/* CDN fonts — avoids next/font Google fetch failures in CI */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] antialiased">
         <CartProvider>
           <FavoritesProvider>

@@ -43,7 +43,10 @@
   --radius-lg: 1.5rem;
   --radius-control: 9999px;
 
-  --font-display: var(--font-fraunces), Georgia, serif;
+  /* Loaded via <link> in layout (not next/font) so CI builds never hit Google at compile time */
+  --font-vazir: "Vazirmatn", system-ui, Tahoma, sans-serif;
+  --font-fraunces: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-display: var(--font-fraunces);
   --season-fx-color: color-mix(in srgb, var(--brand-deep) 16%, transparent);
 }
 
@@ -52,7 +55,7 @@ html { direction: rtl; }
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-vazir), system-ui, sans-serif;
+  font-family: var(--font-vazir);
   -webkit-font-smoothing: antialiased;
 }
 

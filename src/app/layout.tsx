@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { SeasonalTheme } from "@/components/SeasonalTheme";
 import { VisitTracker } from "@/components/VisitTracker";
 import { SiteThemeApplier } from "@/components/SiteThemeApplier";
+import { VazirmatnOffline } from "@/components/VazirmatnOffline";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { WardrobeProvider } from "@/context/WardrobeContext";
@@ -26,6 +27,7 @@ export default function RootLayout({
         <CartProvider>
           <FavoritesProvider>
             <WardrobeProvider>
+              <VazirmatnOffline />
               <SeasonalTheme />
               <SiteThemeApplier />
               <VisitTracker />

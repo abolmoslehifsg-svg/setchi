@@ -1,32 +1,33 @@
-/* Vazirmatn FD — fully offline self-hosted (OFL)
- * Primary: injected by VazirmatnOffline (base64)
- * Fallback paths if public/fonts present
- */
+/* Vazirmatn FD — offline-first (self-hosted) with CDN fallback */
 @font-face {
   font-family: "Vazirmatn";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/setchi/fonts/Vazirmatn-FD-Regular.woff2") format("woff2");
+  src: url("/setchi/fonts/Vazirmatn-FD-Regular.woff2") format("woff2"),
+       url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-400-normal.woff2") format("woff2");
 }
 @font-face {
   font-family: "Vazirmatn";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url("/setchi/fonts/Vazirmatn-FD-Medium.woff2") format("woff2");
+  src: url("/setchi/fonts/Vazirmatn-FD-Medium.woff2") format("woff2"),
+       url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-500-normal.woff2") format("woff2");
 }
 @font-face {
   font-family: "Vazirmatn";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("/setchi/fonts/Vazirmatn-FD-SemiBold.woff2") format("woff2");
+  src: url("/setchi/fonts/Vazirmatn-FD-SemiBold.woff2") format("woff2"),
+       url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-600-normal.woff2") format("woff2");
 }
 @font-face {
   font-family: "Vazirmatn";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/setchi/fonts/Vazirmatn-FD-Bold.woff2") format("woff2");
+  src: url("/setchi/fonts/Vazirmatn-FD-Bold.woff2") format("woff2"),
+       url("https://cdn.jsdelivr.net/fontsource/fonts/vazirmatn@5.2.5/arabic-700-normal.woff2") format("woff2");
 }

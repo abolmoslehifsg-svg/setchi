@@ -1,15 +1,1 @@
-/* Vazirmatn FD offline 400+700 - see repo for full; temporary placeholder until full push */
-@font-face {
-  font-family: "Vazirmatn";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/setchi/fonts/Vazirmatn-FD-Regular.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Vazirmatn";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/setchi/fonts/Vazirmatn-FD-Bold.woff2") format("woff2");
-}
+/* offline faces loaded via primary CSS when public/fonts present */

@@ -1,5 +1,7 @@
 "use client";
 
+import { applyFonts } from "@/lib/fonts";
+
 export type HomeStep = { num: string; title: string; desc: string };
 export type HomeCategory = {
   id: string;
@@ -54,6 +56,9 @@ export type SiteContent = {
   colorForeground: string;
   colorAccent: string;
   colorPrimary: string;
+
+  bodyFontId: string;
+  displayFontId: string;
 };
 
 export const SITE_CONTENT_KEY = "setchi_site_content_v2";
@@ -153,6 +158,9 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   colorForeground: "",
   colorAccent: "",
   colorPrimary: "",
+
+  bodyFontId: "vazirmatn",
+  displayFontId: "fraunces",
 };
 
 export function loadSiteContent(): SiteContent {
@@ -204,4 +212,5 @@ export function applySiteTheme(c: SiteContent) {
     if (val && val.trim()) root.style.setProperty(varName, val.trim());
     else root.style.removeProperty(varName);
   }
+  applyFonts(c.bodyFontId || "vazirmatn", c.displayFontId || "fraunces");
 }

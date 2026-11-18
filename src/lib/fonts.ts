@@ -10,7 +10,7 @@ export type FontOption = {
 export const BUILTIN_FONTS: FontOption[] = [
   {
     id: "vazirmatn",
-    label: "وزیرمتن (محلی)",
+    label: "وزیرمتن (آفلاین)",
     family: "'Vazirmatn', Tahoma, system-ui, sans-serif",
     kind: "builtin",
   },

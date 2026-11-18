@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "@/styles/font-vazirmatn.css";
+import "@/styles/font-vazirmatn-offline.css";
 import "@/styles/font-fraunces.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";

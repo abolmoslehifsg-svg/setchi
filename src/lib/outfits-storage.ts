@@ -60,3 +60,8 @@ export function resetOutfitsToBase(): Outfit[] {
 export function newOutfitId() {
   return `o_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
 }
+
+/** Client detail page for all outfits (static export cannot prebuild admin items). */
+export function outfitHref(id: string): string {
+  return `/outfits/view/?id=${encodeURIComponent(id)}`;
+}

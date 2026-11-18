@@ -3,28 +3,39 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getProductById } from "@/data/products";
+import { getOutfitByIdLive } from "@/lib/outfits-storage";
 
-/**
- * Admin-added products have no pre-built /products/[id] page on static export.
- * If the URL looks like a product detail and the item exists in localStorage,
- * soft-redirect to the client viewer instead of a dead 404.
- */
-function useProductRedirect(): boolean {
+function useCatalogRedirect(): boolean {
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     try {
       const path = window.location.pathname;
-      const m = path.match(/\/products\/([^/]+)\/?$/);
-      if (!m) return;
-      const seg = decodeURIComponent(m[1]);
-      if (seg === "view") return;
-      if (!getProductById(seg)) return;
-      setRedirecting(true);
-      const base = path.slice(0, m.index!); // e.g. "/setchi" or ""
-      window.location.replace(
-        `${base}/products/view/?id=${encodeURIComponent(seg)}`
-      );
+
+      const pm = path.match(/\/products\/([^/]+)\/?$/);
+      if (pm) {
+        const seg = decodeURIComponent(pm[1]);
+        if (seg !== "view" && getProductById(seg)) {
+          setRedirecting(true);
+          const base = path.slice(0, pm.index!);
+          window.location.replace(
+            `${base}/products/view/?id=${encodeURIComponent(seg)}`
+          );
+          return;
+        }
+      }
+
+      const om = path.match(/\/outfits\/([^/]+)\/?$/);
+      if (om) {
+        const seg = decodeURIComponent(om[1]);
+        if (seg !== "view" && getOutfitByIdLive(seg)) {
+          setRedirecting(true);
+          const base = path.slice(0, om.index!);
+          window.location.replace(
+            `${base}/outfits/view/?id=${encodeURIComponent(seg)}`
+          );
+        }
+      }
     } catch {
       /* ignore */
     }
@@ -34,12 +45,12 @@ function useProductRedirect(): boolean {
 }
 
 export default function NotFound() {
-  const redirecting = useProductRedirect();
+  const redirecting = useCatalogRedirect();
 
   if (redirecting) {
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center text-[var(--secondary)]">
-        در حال بارگذاری محصول...
+        در حال بارگذاری...
       </div>
     );
   }

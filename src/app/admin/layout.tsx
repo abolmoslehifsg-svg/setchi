@@ -17,6 +17,7 @@ const MENU = [
   { href: "/admin/outfits/", label: "استایل‌ها", icon: "✦" },
   { href: "/admin/pricing/", label: "تخفیف و قیمت", icon: "%" },
   { href: "/admin/content/", label: "محتوای سایت", icon: "✎" },
+  { href: "/admin/fonts/", label: "فونت‌ها", icon: "Aa" },
   { href: "/admin/team/", label: "تیم / دسترسی", icon: "♟" },
   { href: "/admin/updates/", label: "نسخه و به‌روزرسانی", icon: "↻" },
 ];

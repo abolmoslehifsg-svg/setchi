@@ -62,6 +62,7 @@ export default function ProductsPage() {
           <Link
             key={p.id}
             href={productHref(p.id)}
+            prefetch={false}
             className="group block overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:shadow-md transition-shadow"
           >
             <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">

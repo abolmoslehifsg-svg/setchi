@@ -9,8 +9,14 @@ import { formatPrice, isOrderable } from "@/data/products";
 import { categoryLabel } from "@/lib/categories";
 import { useLiveProduct } from "@/lib/use-live-catalog";
 
-export function ProductDetail({ id }: { id: string }) {
-  const { product, ready } = useLiveProduct(id);
+export function ProductDetail({
+  id,
+  includeDrafts = true,
+}: {
+  id: string;
+  includeDrafts?: boolean;
+}) {
+  const { product, ready } = useLiveProduct(id, includeDrafts);
 
   if (!product) {
     return (

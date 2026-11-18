@@ -203,16 +203,19 @@ export function unavailableLabel(p: LiveProduct): string | null {
   return null;
 }
 
+/** Lookup by id including drafts (for detail page / deep links). */
 export function getProductById(id: string): LiveProduct | undefined {
-  return getAllProducts().find((p) => p.id === id);
+  if (!id) return undefined;
+  return getAllProducts(true).find((p) => p.id === id);
 }
 
-const SEED_IDS = new Set(products.map((p) => p.id));
-
+/**
+ * Always use the client view page. Static /products/[id] only exists for seed
+ * products at build time; admin-added items live only in localStorage and would
+ * 404 on GitHub Pages if linked to /products/<id>/.
+ */
 export function productHref(id: string): string {
-  return SEED_IDS.has(id)
-    ? `/products/${id}/`
-    : `/products/view/?id=${encodeURIComponent(id)}`;
+  return `/products/view/?id=${encodeURIComponent(id)}`;
 }
 
 export function formatPrice(price: number): string {

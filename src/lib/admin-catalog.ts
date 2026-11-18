@@ -103,7 +103,7 @@ export function addProduct(data: NewProductInput): CatalogProduct[] {
     stock,
     originalPrice: data.originalPrice,
     inStock: stock > 0,
-    status: data.status ?? "draft",
+    status: data.status ?? "open",
   };
   const next = [item, ...list];
   saveCatalog(next);

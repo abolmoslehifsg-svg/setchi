@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Fraunces, Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -9,20 +8,6 @@ import { SiteThemeApplier } from "@/components/SiteThemeApplier";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { WardrobeProvider } from "@/context/WardrobeContext";
-
-const vazir = Vazirmatn({
-  subsets: ["arabic", "latin"],
-  variable: "--font-vazir",
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-  weight: ["600", "700"],
-});
 
 export const metadata: Metadata = {
   title: "SETCHI | ستچی — استایلت رو پیدا کن",
@@ -34,7 +19,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fa" dir="rtl" className={`${vazir.variable} ${fraunces.variable} h-full`}>
+    <html lang="fa" dir="rtl" className="h-full">
+      <head>
+        {/* CDN fonts — avoids next/font Google fetch failures in CI */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] antialiased">
         <CartProvider>
           <FavoritesProvider>

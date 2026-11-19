@@ -7,11 +7,14 @@ import { formatPrice, productHref } from "@/data/products";
 import { Category, categoryLabel, getAllCategories } from "@/lib/categories";
 import { useLiveCatalog } from "@/lib/use-live-catalog";
 import { ProductCategory } from "@/types";
+import { useFavorites } from "@/context/FavoritesContext";
+import { HeartButton } from "@/components/HeartButton";
 
 export default function ProductsPage() {
   const [category, setCategory] = useState<ProductCategory | "all">("all");
   const [cats, setCats] = useState<Category[]>([]);
   const { products: list } = useLiveCatalog();
+  const { isProductFavorite, toggleProductFavorite } = useFavorites();
 
   useEffect(() => {
     setCats(getAllCategories());
@@ -29,13 +32,16 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
-      <div className="mb-10">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-          کاتالوگ محصولات
-        </h1>
-        <p className="mt-2 text-[var(--secondary)]">
-          لباس‌ها و اکسسوری‌هایی که در استایل‌های ستچی استفاده می‌شوند
-        </p>
+      <div className="mb-10 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">کاتالوگ محصولات</h1>
+          <p className="mt-2 text-[var(--secondary)]">
+            روی قلب بزن تا لباس‌های موردعلاقه‌ات را نگه داری
+          </p>
+        </div>
+        <Link href="/favorites/" className="text-sm text-link">
+          علاقه‌مندی‌ها →
+        </Link>
       </div>
 
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4 mb-8">
@@ -59,36 +65,43 @@ export default function ProductsPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {filtered.map((p) => (
-          <Link
+          <div
             key={p.id}
-            href={productHref(p.id)}
-            prefetch={false}
-            className="group block overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:shadow-md transition-shadow"
+            className="group relative overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:shadow-md transition-shadow"
           >
-            <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">
-              <Image
-                src={p.images[0]}
-                alt={p.nameFa}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, 25vw"
+            <div className="absolute top-2 left-2 z-10">
+              <HeartButton
+                active={isProductFavorite(p.id)}
+                onToggle={() => toggleProductFavorite(p.id)}
+                size="sm"
               />
             </div>
-            <div className="p-3 sm:p-4">
-              <p className="text-xs text-[var(--secondary)] mb-1">
-                {categoryLabel(p.category, cats.length ? cats : undefined)}
-              </p>
-              <h3 className="font-semibold text-sm sm:text-base group-hover:text-[var(--accent)] transition-colors line-clamp-1">
-                {p.nameFa}
-              </h3>
-              <p className="mt-1.5 text-sm font-medium">{formatPrice(p.price)}</p>
-              {p.originalPrice != null && p.originalPrice !== p.price && (
-                <p className="text-xs text-[var(--secondary)] line-through">
-                  {formatPrice(p.originalPrice)}
+            <Link href={productHref(p.id)} prefetch={false} className="block">
+              <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">
+                <Image
+                  src={p.images[0]}
+                  alt={p.nameFa}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                />
+              </div>
+              <div className="p-3 sm:p-4">
+                <p className="text-xs text-[var(--secondary)] mb-1">
+                  {categoryLabel(p.category, cats.length ? cats : undefined)}
                 </p>
-              )}
-            </div>
-          </Link>
+                <h3 className="font-semibold text-sm sm:text-base group-hover:text-[var(--accent)] transition-colors line-clamp-1">
+                  {p.nameFa}
+                </h3>
+                <p className="mt-1.5 text-sm font-medium">{formatPrice(p.price)}</p>
+                {p.originalPrice != null && p.originalPrice !== p.price && (
+                  <p className="text-xs text-[var(--secondary)] line-through">
+                    {formatPrice(p.originalPrice)}
+                  </p>
+                )}
+              </div>
+            </Link>
+          </div>
         ))}
       </div>
     </div>

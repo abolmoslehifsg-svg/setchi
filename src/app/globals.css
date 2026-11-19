@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
- * ═══ هویت A: Modern Organic / Premium Streetwear ═══
+ * Editorial Fashion + Minimal — paper/ink + turquoise interaction
  */
 :root {
   --brand-deep: #172B2A;
@@ -12,9 +12,12 @@
   --brand-lime: #C7E36A;
   --brand-burnt: #D97736;
   --brand-neutral: #D9D6CE;
+  --brand-ink: #171717;
+  --brand-paper: #F5F3EF;
+  --brand-turquoise: #40E0D0;
 
-  --background: var(--brand-cream);
-  --foreground: var(--brand-charcoal);
+  --background: var(--brand-paper);
+  --foreground: var(--brand-ink);
   --primary: var(--brand-deep);
   --primary-foreground: var(--brand-cream);
   --accent: var(--brand-lime);
@@ -24,12 +27,14 @@
   --cta-hover: color-mix(in srgb, var(--brand-burnt) 86%, #fff);
 
   --border: var(--brand-neutral);
-  --muted: color-mix(in srgb, var(--brand-neutral) 42%, var(--brand-cream));
-  --secondary: color-mix(in srgb, var(--brand-charcoal) 74%, var(--brand-cream));
-  --card: color-mix(in srgb, var(--brand-cream) 38%, #fff);
+  --muted: color-mix(in srgb, var(--brand-neutral) 42%, var(--brand-paper));
+  --secondary: color-mix(in srgb, var(--brand-ink) 68%, var(--brand-paper));
+  --card: color-mix(in srgb, var(--brand-paper) 38%, #fff);
   --link: color-mix(in srgb, var(--brand-burnt) 66%, #000);
-  --ring: var(--brand-deep);
-  --field-border: color-mix(in srgb, var(--brand-charcoal) 54%, var(--brand-cream));
+  --ring: var(--brand-turquoise);
+  --interactive: var(--brand-turquoise);
+  --interactive-soft: color-mix(in srgb, var(--brand-turquoise) 22%, var(--brand-paper));
+  --field-border: color-mix(in srgb, var(--brand-ink) 54%, var(--brand-paper));
 
   --success: #2F6B4A;
   --success-soft: #DDE9D2;
@@ -43,7 +48,6 @@
   --radius-lg: 1.5rem;
   --radius-control: 9999px;
 
-  /* Loaded via <link> in layout (not next/font) so CI builds never hit Google at compile time */
   --font-vazir: "Vazirmatn", system-ui, Tahoma, sans-serif;
   --font-fraunces: "Fraunces", Georgia, "Times New Roman", serif;
   --font-display: var(--font-fraunces);
@@ -285,22 +289,13 @@ a, button {
   100% { transform: translateY(28px) translateX(-14px) rotate(18deg); opacity: 0.2; }
 }
 
-/* ─── Motion system (premium, restrained) ─── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
 @keyframes soft-float {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-8px); }
-}
-@keyframes gentle-pulse {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.035); }
 }
 
 .reveal {
@@ -308,7 +303,6 @@ a, button {
   transform: translateY(16px);
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
 }
 .reveal.is-visible {
   opacity: 1;
@@ -325,45 +319,22 @@ a, button {
 .hero-enter-d4 { animation-delay: 0.42s; }
 .hero-enter-d5 { animation-delay: 0.55s; }
 
-.soft-float {
-  animation: soft-float 5.5s ease-in-out infinite;
-}
+.soft-float { animation: soft-float 5.5s ease-in-out infinite; }
 
 .hover-lift {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.35s ease,
-              border-color 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
 }
 .hover-lift:hover {
   transform: translateY(-6px);
   box-shadow: 0 14px 32px -12px color-mix(in srgb, var(--brand-deep) 28%, transparent);
 }
 
-.btn-cta:hover,
-.btn-outline:hover {
-  transform: translateY(-1px);
-}
-.btn-cta:active,
-.btn-outline:active {
-  transform: translateY(0);
-}
-
 .card-interactive {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.35s ease,
-              border-color 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
 }
 .card-interactive:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--brand-deep) 22%, transparent);
-}
-
-.step-card {
-  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.25s ease;
-}
-.step-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--brand-deep) 18%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -372,17 +343,7 @@ a, button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .season-dot { animation: none !important; opacity: 0.25; }
-  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
   .hero-enter { opacity: 1 !important; animation: none !important; }
   .soft-float { animation: none !important; }
-  .hover-lift:hover,
-  .card-interactive:hover,
-  .step-card:hover { transform: none !important; }
-}
-
-@media (max-width: 640px) {
-  .season-dot.d4,
-  .season-dot.d5,
-  .season-dot.d6 { display: none; }
 }

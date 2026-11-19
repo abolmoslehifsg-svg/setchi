@@ -8,7 +8,12 @@ import {
   CATEGORY_LABELS, COLOR_OPTIONS, WardrobeCategory, WardrobeFit,
   WardrobeItem, WardrobeOccasion, WardrobeSeason, WardrobeStyle, WardrobePattern,
 } from "@/lib/wardrobe/types";
-import { compressImage } from "@/lib/wardrobe/storage";
+import {
+  compressImage,
+  compressImageBulk,
+  estimateStorageMb,
+  WARDROBE_SOFT_LIMIT,
+} from "@/lib/wardrobe/storage";
 import {
   analyzeMissing, generateFromWardrobe, toSavedOutfit,
   replaceItemInOutfit, scoreOutfitItems, GeneratedOutfit,
@@ -35,6 +40,9 @@ export default function WardrobePage() {
   const [generated, setGenerated] = useState<GeneratedOutfit[]>([]);
   const [active, setActive] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+  const bulkRef = useRef<HTMLInputElement>(null);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+  const [bulkMsg, setBulkMsg] = useState("");
 
   useEffect(() => {
     try {
@@ -56,6 +64,55 @@ export default function WardrobePage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "خطا");
     } finally { setBusy(false); }
+  };
+
+  const onBulkFiles = async (list: FileList | null) => {
+    if (!list || !list.length) return;
+    const files = Array.from(list).filter((f) => f.type.startsWith("image/"));
+    if (!files.length) {
+      setError("هیچ تصویری انتخاب نشد");
+      return;
+    }
+    if (w.items.length + files.length > WARDROBE_SOFT_LIMIT) {
+      setError(`حد پیشنهادی ${WARDROBE_SOFT_LIMIT} لباس است. الان ${w.items.length} داری.`);
+    }
+    setBusy(true);
+    setError("");
+    setBulkMsg("");
+    setBulkProgress({ done: 0, total: files.length });
+    const batch: Omit<WardrobeItem, "id" | "createdAt">[] = [];
+    let failed = 0;
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const data = await compressImageBulk(files[i]);
+        const base = files[i].name.replace(/\.[^.]+$/, "").slice(0, 40) || `لباس ${i + 1}`;
+        batch.push({
+          imageData: data,
+          name: base,
+          category: "tshirt",
+          mainColor: "black",
+          secondaryColors: [],
+          pattern: "solid",
+          style: "casual",
+          season: "all",
+          fit: "regular",
+          favorite: false,
+        });
+      } catch {
+        failed += 1;
+      }
+      setBulkProgress({ done: i + 1, total: files.length });
+    }
+    if (batch.length) w.addItems(batch);
+    setBulkMsg(
+      failed
+        ? `${batch.length} اضافه شد · ${failed} ناموفق`
+        : `${batch.length} لباس به کمد اضافه شد`
+    );
+    setBusy(false);
+    setBulkProgress(null);
+    setTab("items");
+    if (bulkRef.current) bulkRef.current.value = "";
   };
 
   const resetForm = () => {
@@ -97,18 +154,59 @@ export default function WardrobePage() {
         <div>
           <p className="text-xs tracking-widest text-[var(--accent)] uppercase mb-1">Smart Wardrobe</p>
           <h1 className="text-3xl font-bold">کمد من</h1>
-          <p className="mt-2 text-[var(--secondary)] text-sm">با لباس‌هایی که خودت داری استایل بساز.</p>
+          <p className="mt-2 text-[var(--secondary)] text-sm">با لباس‌هایی که خودت داری استایل بساز. آپلود دسته‌جمعی پشتیبانی می‌شود.</p>
         </div>
-        <div className="flex gap-2">
-          <button type="button" onClick={() => { resetForm(); setShowAdd(true); }} className="rounded-full bg-[var(--foreground)] px-5 py-2.5 text-sm text-[var(--background)]">افزودن لباس</button>
-          <button type="button" onClick={run} disabled={w.items.length < 2} className="rounded-full border border-[var(--border)] px-5 py-2.5 text-sm disabled:opacity-40">ساخت استایل</button>
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={bulkRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => onBulkFiles(e.target.files)}
+          />
+          <button
+            type="button"
+            onClick={() => bulkRef.current?.click()}
+            disabled={busy}
+            className="rounded-full bg-[var(--foreground)] px-5 py-2.5 text-sm text-[var(--background)] disabled:opacity-50"
+          >
+            {busy && bulkProgress
+              ? `آپلود ${bulkProgress.done}/${bulkProgress.total}`
+              : "آپلود دسته‌جمعی"}
+          </button>
+          <button type="button" onClick={() => { resetForm(); setShowAdd(true); }} className="rounded-full border border-[var(--border)] px-5 py-2.5 text-sm">
+            افزودن تکی
+          </button>
+          <button type="button" onClick={run} disabled={w.items.length < 2} className="rounded-full border border-[var(--border)] px-5 py-2.5 text-sm disabled:opacity-40">
+            ساخت استایل
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      {(bulkMsg || bulkProgress || w.saveError) && (
+        <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--muted)]/50 px-4 py-3 text-sm">
+          {bulkProgress && (
+            <div>
+              <p className="mb-2">در حال فشرده‌سازی و ذخیره… {bulkProgress.done} از {bulkProgress.total}</p>
+              <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                <div
+                  className="h-full bg-[var(--accent)] transition-all"
+                  style={{ width: `${Math.round((bulkProgress.done / Math.max(1, bulkProgress.total)) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+          {bulkMsg && !bulkProgress && <p>{bulkMsg}</p>}
+          {w.saveError && <p className="text-red-600 mt-1">{w.saveError}</p>}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <div className="rounded-2xl border border-[var(--border)] p-3"><p className="text-xs text-[var(--secondary)]">لباس</p><p className="text-lg font-semibold">{w.items.length}</p></div>
         <div className="rounded-2xl border border-[var(--border)] p-3"><p className="text-xs text-[var(--secondary)]">ذخیره</p><p className="text-lg font-semibold">{w.outfits.length}</p></div>
         <div className="rounded-2xl border border-[var(--border)] p-3"><p className="text-xs text-[var(--secondary)]">دسته</p><p className="text-lg font-semibold">{new Set(w.items.map(i=>i.category)).size}</p></div>
+        <div className="rounded-2xl border border-[var(--border)] p-3"><p className="text-xs text-[var(--secondary)]">حجم تقریبی</p><p className="text-lg font-semibold">{estimateStorageMb(w.items)} MB</p></div>
       </div>
 
       <div className="flex gap-1 border-b border-[var(--border)] mb-6 overflow-x-auto">
@@ -119,9 +217,19 @@ export default function WardrobePage() {
 
       {tab==="items" && (
         w.items.length===0 ? (
-          <div className="rounded-3xl border border-dashed border-[var(--border)] p-14 text-center">
+          <div className="rounded-3xl border border-dashed border-[var(--border)] p-14 text-center max-w-lg mx-auto">
             <p className="text-xl font-semibold">کمد خالی است</p>
-            <button type="button" onClick={() => setShowAdd(true)} className="mt-6 rounded-full bg-[var(--foreground)] px-8 py-3 text-sm text-[var(--background)]">افزودن</button>
+            <p className="mt-3 text-sm text-[var(--secondary)] leading-relaxed">
+              می‌تونی ده‌ها یا صدها عکس را یکجا انتخاب کنی. عکس‌ها فشرده و در مرورگر ذخیره می‌شوند.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <button type="button" onClick={() => bulkRef.current?.click()} className="rounded-full bg-[var(--foreground)] px-8 py-3 text-sm text-[var(--background)]">
+                آپلود دسته‌جمعی
+              </button>
+              <button type="button" onClick={() => setShowAdd(true)} className="rounded-full border border-[var(--border)] px-8 py-3 text-sm">
+                افزودن تکی
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

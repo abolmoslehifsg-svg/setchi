@@ -137,9 +137,9 @@ export function Header() {
               </span>
             )}
           </Link>
-          <Link href="/style-assistant/" className="btn btn-cta px-5 py-2">
-            استایل منو بساز
-          </Link>
+          <a href="/#today-style" className="btn btn-cta px-5 py-2">
+            استایل امروز
+          </a>
         </div>
 
         <button type="button" className="nav-icon md:hidden p-2" onClick={() => setOpen(!open)} aria-label="منو">
@@ -198,13 +198,13 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/style-assistant/"
+            <a
+              href="/#today-style"
               onClick={() => setOpen(false)}
               className="btn btn-cta mt-2 px-5 py-3 text-center"
             >
-              استایل منو بساز
-            </Link>
+              استایل امروز من
+            </a>
           </nav>
         </div>
       )}

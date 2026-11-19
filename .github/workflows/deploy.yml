@@ -10,9 +10,11 @@ permissions:
   pages: write
   id-token: write
 
+# اگر true باشد، با هر پوش جدید دیپلوی قبلی کنسل می‌شود و
+# سایت ممکن است موقتاً خراب/README نشان دهد تا دیپلوی بعدی تمام شود.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:

@@ -23,6 +23,7 @@ const navItems = [
   { href: "/style-assistant/", label: "دستیار استایل" },
   { href: "/try-on/", label: "پرو مجازی" },
   { href: "/wardrobe/", label: "کمد من" },
+  { href: "/collections/", label: "کالکشن" },
   { href: "/products/", label: "محصولات" },
 ];
 
@@ -159,52 +160,23 @@ export function Header() {
             {user && (
               <div className="px-4 py-3 mb-1 rounded-xl bg-[var(--muted)] text-sm">
                 خوش اومدی، <span className="font-semibold">{welcomeName}</span>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="block mt-2 text-xs text-[var(--secondary)] hover:text-[var(--foreground)]"
-                >
+                <button type="button" onClick={handleLogout} className="block mt-2 text-xs text-[var(--secondary)] hover:text-[var(--foreground)]">
                   خروج از حساب
                 </button>
               </div>
             )}
             {!user && (
               <div className="flex gap-2 px-4 mb-2">
-                <Link
-                  href="/auth/login/"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 text-center rounded-full border border-[var(--border)] py-2.5 text-sm"
-                >
-                  ورود
-                </Link>
-                <Link
-                  href="/auth/register/"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 text-center btn btn-cta py-2.5 text-sm"
-                >
-                  ثبت‌نام
-                </Link>
+                <Link href="/auth/login/" onClick={() => setOpen(false)} className="flex-1 text-center rounded-full border border-[var(--border)] py-2.5 text-sm">ورود</Link>
+                <Link href="/auth/register/" onClick={() => setOpen(false)} className="flex-1 text-center btn btn-cta py-2.5 text-sm">ثبت‌نام</Link>
               </div>
             )}
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={`mobile-nav-link rounded-lg px-4 py-3 text-base font-medium ${
-                  isActive(item.href) ? "mobile-nav-link-active" : ""
-                }`}
-              >
+              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={`mobile-nav-link rounded-lg px-4 py-3 text-base font-medium ${isActive(item.href) ? "mobile-nav-link-active" : ""}`}>
                 {item.label}
               </Link>
             ))}
-            <a
-              href="/#today-style"
-              onClick={() => setOpen(false)}
-              className="btn btn-cta mt-2 px-5 py-3 text-center"
-            >
-              استایل امروز من
-            </a>
+            <a href="/#today-style" onClick={() => setOpen(false)} className="btn btn-cta mt-2 px-5 py-3 text-center">استایل امروز من</a>
           </nav>
         </div>
       )}

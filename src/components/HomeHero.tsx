@@ -30,46 +30,52 @@ export function HomeHero() {
 
   return (
     <>
-    {user && (
-      <div className="bg-[var(--accent)] text-[var(--accent-foreground)] text-center text-sm py-2.5 px-4">
-        خوش اومدی، <strong>{user.displayName || user.username}</strong> — آماده‌ای استایل جدید بسازی؟
-      </div>
-    )}
-    <section className="hero relative overflow-hidden">
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
-        <div className="max-w-xl">
-          <p className="eyebrow mb-5 text-sm hero-enter hero-enter-d1">{c.heroEyebrow}</p>
-          <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.2] tracking-tight hero-enter hero-enter-d2">
-            {c.heroTitleLine1}
-            <br className="hidden sm:block" />
-            <mark className="hero-mark">{c.heroTitleHighlight}</mark> {c.heroTitleLine2}
-          </h1>
-          <p className="hero-lead mt-6 text-lg leading-relaxed hero-enter hero-enter-d3">{c.heroLead}</p>
-          <div className="mt-10 flex flex-wrap gap-4 hero-enter hero-enter-d4">
-            <Link href={c.ctaPrimaryHref || "/wardrobe/"} className="btn btn-cta px-8 py-3.5 text-base">
-              {c.ctaPrimaryLabel}
-            </Link>
-            <Link
-              href={c.ctaSecondaryHref || "/style-assistant/"}
-              className="btn btn-outline px-8 py-3.5 text-base"
-            >
-              {c.ctaSecondaryLabel}
-            </Link>
+      {user && (
+        <div className="bg-[var(--accent)] text-[var(--accent-foreground)] text-center text-sm py-2.5 px-4">
+          خوش اومدی، <strong>{user.displayName || user.username}</strong> — آماده‌ای استایل جدید
+          بسازی؟
+        </div>
+      )}
+      <section className="hero relative overflow-hidden">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 lg:gap-14 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
+          <div className="order-1 lg:order-2 hero-arch relative mx-auto aspect-[4/5] w-full max-w-[16rem] sm:max-w-xs soft-float hero-enter hero-enter-d2">
+            <Image
+              src={c.heroImage}
+              alt={c.brandNameFa || "استایل مردانه"}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 1024px) 320px, 420px"
+            />
+          </div>
+
+          <div className="order-2 lg:order-1 max-w-xl">
+            <p className="eyebrow mb-5 text-sm hero-enter hero-enter-d1">{c.heroEyebrow}</p>
+            <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.2] tracking-tight hero-enter hero-enter-d2">
+              {c.heroTitleLine1}
+              <br className="hidden sm:block" />
+              <mark className="hero-mark">{c.heroTitleHighlight}</mark> {c.heroTitleLine2}
+            </h1>
+            <p className="hero-lead mt-6 text-lg leading-relaxed hero-enter hero-enter-d3">
+              {c.heroLead}
+            </p>
+            <div className="mt-10 flex flex-wrap gap-3 hero-enter hero-enter-d4">
+              <a href="#today-style" className="btn btn-cta px-8 py-3.5 text-base">
+                استایل امروز من
+              </a>
+              <Link
+                href={c.ctaPrimaryHref || "/wardrobe/"}
+                className="btn btn-outline px-8 py-3.5 text-base"
+              >
+                {c.ctaPrimaryLabel || "کمد من"}
+              </Link>
+            </div>
+            <p className="mt-4 text-xs text-[var(--primary-foreground)]/60 hero-enter hero-enter-d5">
+              ۳ قدم · موقعیت · فصل · پیشنهاد آماده
+            </p>
           </div>
         </div>
-
-        <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs soft-float hero-enter hero-enter-d5">
-          <Image
-            src={c.heroImage}
-            alt={c.brandNameFa || "استایل"}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 1024px) 320px, 400px"
-          />
-        </div>
-      </div>
-    </section>
+      </section>
     </>
   );
 }

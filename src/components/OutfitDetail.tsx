@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { OutfitCard } from "@/components/OutfitCard";
+import { OutfitComments } from "@/components/OutfitComments";
 import { formatPrice, productHref, getProductById } from "@/data/products";
 import {
   getOutfitByIdLive,
@@ -179,6 +180,8 @@ export function OutfitDetail({ id }: { id: string }) {
           </div>
         </section>
       )}
+
+      <OutfitComments outfitId={outfit.id} />
 
       {related.length > 0 && (
         <section className="mt-16 lg:mt-24">

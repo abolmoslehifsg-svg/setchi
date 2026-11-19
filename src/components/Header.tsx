@@ -24,6 +24,7 @@ const navItems = [
   { href: "/try-on/", label: "پرو مجازی" },
   { href: "/wardrobe/", label: "کمد من" },
   { href: "/collections/", label: "کالکشن" },
+  { href: "/favorites/", label: "علاقه‌مندی" },
   { href: "/products/", label: "محصولات" },
 ];
 
@@ -31,7 +32,8 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { totalItems } = useCart();
-  const { favorites } = useFavorites();
+  const { favorites, productFavorites } = useFavorites();
+  const favCount = favorites.length + productFavorites.length;
   const [brand, setBrand] = useState(DEFAULT_SITE_CONTENT.brandName);
   const [brandFa, setBrandFa] = useState(DEFAULT_SITE_CONTENT.brandNameFa);
   const [user, setUser] = useState<UserSession | null>(null);
@@ -96,35 +98,25 @@ export function Header() {
               <span className="text-sm text-[var(--secondary)] max-w-[10rem] truncate">
                 خوش اومدی، <span className="font-semibold text-[var(--foreground)]">{welcomeName}</span>
               </span>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="text-xs text-[var(--secondary)] hover:text-[var(--foreground)] px-2 py-1 rounded-lg hover:bg-[var(--muted)]"
-              >
-                خروج
-              </button>
+              <button type="button" onClick={handleLogout} className="text-xs text-[var(--secondary)] hover:text-[var(--foreground)] px-2 py-1 rounded-lg hover:bg-[var(--muted)]">خروج</button>
             </div>
           ) : (
             <div className="flex items-center gap-1 ml-1">
-              <Link href="/auth/login/" className="nav-link text-sm font-medium px-2 py-1">
-                ورود
-              </Link>
-              <Link href="/auth/register/" className="btn btn-outline px-3 py-1.5 text-xs">
-                ثبت‌نام
-              </Link>
+              <Link href="/auth/login/" className="nav-link text-sm font-medium px-2 py-1">ورود</Link>
+              <Link href="/auth/register/" className="btn btn-outline px-3 py-1.5 text-xs">ثبت‌نام</Link>
             </div>
           )}
 
           <Link href="/wardrobe/" className="nav-icon relative p-2" aria-label="کمد من">
             <span className="text-sm font-medium">کمد</span>
           </Link>
-          <Link href="/outfits/" className="nav-icon relative p-2" aria-label="علاقه‌مندی‌ها">
-            <svg className="w-5 h-5" fill={favorites.length ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <Link href="/favorites/" className="nav-icon relative p-2" aria-label="علاقه‌مندی‌ها">
+            <svg className="w-5 h-5" fill={favCount ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
-            {favorites.length > 0 && (
+            {favCount > 0 && (
               <span className="absolute -top-0.5 -left-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
-                {favorites.length > 9 ? "9+" : favorites.length}
+                {favCount > 9 ? "9+" : favCount}
               </span>
             )}
           </Link>
@@ -138,9 +130,7 @@ export function Header() {
               </span>
             )}
           </Link>
-          <a href="/#today-style" className="btn btn-cta px-5 py-2">
-            استایل امروز
-          </a>
+          <a href="/#today-style" className="btn btn-cta px-5 py-2">استایل امروز</a>
         </div>
 
         <button type="button" className="nav-icon md:hidden p-2" onClick={() => setOpen(!open)} aria-label="منو">
@@ -160,9 +150,7 @@ export function Header() {
             {user && (
               <div className="px-4 py-3 mb-1 rounded-xl bg-[var(--muted)] text-sm">
                 خوش اومدی، <span className="font-semibold">{welcomeName}</span>
-                <button type="button" onClick={handleLogout} className="block mt-2 text-xs text-[var(--secondary)] hover:text-[var(--foreground)]">
-                  خروج از حساب
-                </button>
+                <button type="button" onClick={handleLogout} className="block mt-2 text-xs text-[var(--secondary)] hover:text-[var(--foreground)]">خروج از حساب</button>
               </div>
             )}
             {!user && (

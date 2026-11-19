@@ -10,8 +10,6 @@ permissions:
   pages: write
   id-token: write
 
-# اگر true باشد، با هر پوش جدید دیپلوی قبلی کنسل می‌شود و
-# سایت ممکن است موقتاً خراب/README نشان دهد تا دیپلوی بعدی تمام شود.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -25,9 +23,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm install --no-audit --no-fund --prefer-offline=false
 
       - name: Build static site
         run: npm run build
@@ -36,7 +37,10 @@ jobs:
           NEXT_PUBLIC_ORDER_WHATSAPP: ${{ vars.NEXT_PUBLIC_ORDER_WHATSAPP }}
 
       - name: List output
-        run: ls -la out || (echo "out missing" && exit 1)
+        run: |
+          ls -la out || (echo "out missing" && exit 1)
+          test -f out/favorites/index.html || (echo "favorites page missing" && ls -la out && exit 1)
+          test -f out/collections/index.html || (echo "collections page missing" && exit 1)
 
       - name: Add .nojekyll
         run: touch out/.nojekyll

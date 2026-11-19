@@ -112,6 +112,45 @@ export function ProductDetail({
             </div>
           </div>
 
+          <div className="mt-6 rounded-xl border border-[var(--border)] p-4 text-sm space-y-3">
+            <div>
+              <h3 className="font-medium mb-1">جنس و جزئیات</h3>
+              <p className="text-[var(--secondary)] text-xs leading-relaxed">
+                {product.tags?.length
+                  ? `برچسب‌ها: ${product.tags.join(" · ")}`
+                  : "جزئیات پارچه توسط فروشنده تکمیل می‌شود."}
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">راهنمای سایز (تقریبی)</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-center border-collapse" dir="ltr">
+                  <thead>
+                    <tr className="border-b border-[var(--border)]">
+                      <th className="py-1.5 px-2">Size</th>
+                      <th className="py-1.5 px-2">سینه (cm)</th>
+                      <th className="py-1.5 px-2">کمر (cm)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-[var(--secondary)]">
+                    <tr className="border-b border-[var(--border)]/50"><td className="py-1">S</td><td>88–92</td><td>72–76</td></tr>
+                    <tr className="border-b border-[var(--border)]/50"><td className="py-1">M</td><td>92–96</td><td>76–80</td></tr>
+                    <tr className="border-b border-[var(--border)]/50"><td className="py-1">L</td><td>96–100</td><td>80–84</td></tr>
+                    <tr className="border-b border-[var(--border)]/50"><td className="py-1">XL</td><td>100–106</td><td>84–90</td></tr>
+                    <tr><td className="py-1">XXL</td><td>106–112</td><td>90–96</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[10px] text-[var(--secondary)] mt-2">
+                جدول عمومی است. برای شلوار و کفش به سایزهای روی کارت مراجعه کن.
+              </p>
+            </div>
+            <p className="text-[11px] text-[var(--secondary)]">
+              موجودی: {soldOut ? "ناموجود" : product.stock != null ? `${product.stock} عدد` : "موجود"}
+              {" · "}ارسال و مرجوعی هنگام ثبت سفارش با فروشنده هماهنگ می‌شود.
+            </p>
+          </div>
+
           <div className="mt-10">
             <OrderPanel
               source={{ kind: "product", id: product.id, title: product.nameFa }}

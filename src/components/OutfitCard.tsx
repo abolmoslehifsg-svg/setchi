@@ -33,10 +33,14 @@ export function OutfitCard({ outfit, priority = false }: OutfitCardProps) {
         type="button"
         onClick={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           toggleFavorite(outfit.id);
         }}
-        className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-[var(--foreground)] hover:text-[var(--accent)] hover:scale-110 active:scale-95 transition-transform"
+        className={`absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center hover:scale-110 active:scale-95 transition-transform ${
+          fav ? "text-red-500" : "text-[var(--foreground)] hover:text-red-500"
+        }`}
         aria-label="علاقه‌مندی"
+        aria-pressed={fav}
       >
         <svg
           className="w-4 h-4"

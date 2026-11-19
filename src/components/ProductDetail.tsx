@@ -8,6 +8,8 @@ import { outfits } from "@/data/outfits";
 import { formatPrice, isOrderable } from "@/data/products";
 import { categoryLabel } from "@/lib/categories";
 import { useLiveProduct } from "@/lib/use-live-catalog";
+import { useFavorites } from "@/context/FavoritesContext";
+import { HeartButton } from "@/components/HeartButton";
 
 export function ProductDetail({
   id,
@@ -17,6 +19,7 @@ export function ProductDetail({
   includeDrafts?: boolean;
 }) {
   const { product, ready } = useLiveProduct(id, includeDrafts);
+  const { isProductFavorite, toggleProductFavorite } = useFavorites();
 
   if (!product) {
     return (
@@ -55,15 +58,27 @@ export function ProductDetail({
             priority
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
+          <div className="absolute top-3 left-3 z-10">
+            <HeartButton
+              active={isProductFavorite(product.id)}
+              onToggle={() => toggleProductFavorite(product.id)}
+            />
+          </div>
         </div>
 
         <div>
           <p className="text-sm text-[var(--accent)] font-medium">
             {categoryLabel(product.category)}
           </p>
-          <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight">
-            {product.nameFa}
-          </h1>
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+              {product.nameFa}
+            </h1>
+            <HeartButton
+              active={isProductFavorite(product.id)}
+              onToggle={() => toggleProductFavorite(product.id)}
+            />
+          </div>
           <p className="mt-1 text-[var(--secondary)]">{product.name}</p>
 
           <div className="mt-6 text-2xl font-bold">

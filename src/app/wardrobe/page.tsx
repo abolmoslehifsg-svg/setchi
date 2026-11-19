@@ -43,6 +43,13 @@ export default function WardrobePage() {
   const bulkRef = useRef<HTMLInputElement>(null);
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
   const [bulkMsg, setBulkMsg] = useState("");
+  const [showBulk, setShowBulk] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState<WardrobeCategory>("tshirt");
+  const [bulkColor, setBulkColor] = useState("black");
+  const [bulkStyle, setBulkStyle] = useState<WardrobeStyle>("casual");
+  const [bulkFit, setBulkFit] = useState<WardrobeFit>("regular");
+  const [bulkSeason, setBulkSeason] = useState<WardrobeSeason>("all");
+  const [lastBulkIds, setLastBulkIds] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -89,13 +96,13 @@ export default function WardrobePage() {
         batch.push({
           imageData: data,
           name: base,
-          category: "tshirt",
-          mainColor: "black",
+          category: bulkCategory,
+          mainColor: bulkColor,
           secondaryColors: [],
           pattern: "solid",
-          style: "casual",
-          season: "all",
-          fit: "regular",
+          style: bulkStyle,
+          season: bulkSeason,
+          fit: bulkFit,
           favorite: false,
         });
       } catch {
@@ -103,16 +110,25 @@ export default function WardrobePage() {
       }
       setBulkProgress({ done: i + 1, total: files.length });
     }
-    if (batch.length) w.addItems(batch);
+    let created: WardrobeItem[] = [];
+    if (batch.length) created = w.addItems(batch);
+    setLastBulkIds(created.map((x) => x.id));
+    const catLabel = CATEGORY_LABELS[bulkCategory];
     setBulkMsg(
       failed
-        ? `${batch.length} اضافه شد · ${failed} ناموفق`
-        : `${batch.length} لباس به کمد اضافه شد`
+        ? `${batch.length} ${catLabel} اضافه شد · ${failed} ناموفق — می‌تونی هر کدام را ویرایش کنی`
+        : `${batch.length} ${catLabel} اضافه شد — روی «ویرایش» بزن و جزئیات را عوض کن`
     );
     setBusy(false);
     setBulkProgress(null);
+    setShowBulk(false);
     setTab("items");
     if (bulkRef.current) bulkRef.current.value = "";
+  };
+
+  const startBulkPick = () => {
+    setShowBulk(false);
+    setTimeout(() => bulkRef.current?.click(), 80);
   };
 
   const resetForm = () => {
@@ -154,7 +170,7 @@ export default function WardrobePage() {
         <div>
           <p className="text-xs tracking-widest text-[var(--accent)] uppercase mb-1">Smart Wardrobe</p>
           <h1 className="text-3xl font-bold">کمد من</h1>
-          <p className="mt-2 text-[var(--secondary)] text-sm">با لباس‌هایی که خودت داری استایل بساز. آپلود دسته‌جمعی پشتیبانی می‌شود.</p>
+          <p className="mt-2 text-[var(--secondary)] text-sm">اول نوع لباس را انتخاب کن، بعد گروهی آپلود کن. بعداً قابل ویرایش است.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <input
@@ -167,7 +183,7 @@ export default function WardrobePage() {
           />
           <button
             type="button"
-            onClick={() => bulkRef.current?.click()}
+            onClick={() => setShowBulk(true)}
             disabled={busy}
             className="rounded-full bg-[var(--foreground)] px-5 py-2.5 text-sm text-[var(--background)] disabled:opacity-50"
           >
@@ -220,10 +236,10 @@ export default function WardrobePage() {
           <div className="rounded-3xl border border-dashed border-[var(--border)] p-14 text-center max-w-lg mx-auto">
             <p className="text-xl font-semibold">کمد خالی است</p>
             <p className="mt-3 text-sm text-[var(--secondary)] leading-relaxed">
-              می‌تونی ده‌ها یا صدها عکس را یکجا انتخاب کنی. عکس‌ها فشرده و در مرورگر ذخیره می‌شوند.
+              اول نوع لباس را انتخاب کن (مثلاً شلوار)، بعد چند عکس را با هم آپلود کن.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <button type="button" onClick={() => bulkRef.current?.click()} className="rounded-full bg-[var(--foreground)] px-8 py-3 text-sm text-[var(--background)]">
+              <button type="button" onClick={() => setShowBulk(true)} className="rounded-full bg-[var(--foreground)] px-8 py-3 text-sm text-[var(--background)]">
                 آپلود دسته‌جمعی
               </button>
               <button type="button" onClick={() => setShowAdd(true)} className="rounded-full border border-[var(--border)] px-8 py-3 text-sm">
@@ -234,7 +250,7 @@ export default function WardrobePage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {w.items.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
+              <div key={item.id} className={`rounded-2xl border overflow-hidden bg-[var(--card)] ${lastBulkIds.includes(item.id) ? "border-[var(--accent)] ring-1 ring-[var(--accent)]" : "border-[var(--border)]"}`}>
                 <div className="relative aspect-square bg-[var(--muted)]">
                   <Image src={item.imageData} alt={item.name} fill unoptimized className="object-cover" sizes="200px" />
                 </div>
@@ -344,6 +360,90 @@ export default function WardrobePage() {
               <p className="text-sm text-[var(--secondary)] mt-1">{m.reasonFa}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {showBulk && (
+        <div className="fixed inset-0 z-[100] bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-[var(--background)] border border-[var(--border)] p-5">
+            <div className="flex justify-between mb-2">
+              <h2 className="font-bold">آپلود دسته‌جمعی</h2>
+              <button type="button" onClick={() => setShowBulk(false)} className="text-sm text-[var(--secondary)]">بستن</button>
+            </div>
+            <p className="text-sm text-[var(--secondary)] mb-4 leading-relaxed">
+              اول مشخص کن این دسته عکس‌ها چه نوعی هستند. بعد از آپلود می‌توانی تک‌تک ویرایش کنی.
+              (تا وقتی هوش مصنوعی اضافه شود همین روش دستی است.)
+            </p>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-[var(--secondary)] mb-1.5">نوع لباس *</p>
+                <div className="flex flex-wrap gap-2">
+                  {(Object.keys(CATEGORY_LABELS) as WardrobeCategory[]).map((k) => (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setBulkCategory(k)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
+                        bulkCategory === k
+                          ? "bg-[var(--foreground)] text-[var(--background)] border-transparent"
+                          : "border-[var(--border)] hover:bg-[var(--muted)]"
+                      }`}
+                    >
+                      {CATEGORY_LABELS[k]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-xs text-[var(--secondary)] mb-1">رنگ غالب</p>
+                  <select value={bulkColor} onChange={(e) => setBulkColor(e.target.value)} className="w-full rounded-xl border border-[var(--border)] px-2 py-2 text-sm bg-white">
+                    {COLOR_OPTIONS.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <p className="text-xs text-[var(--secondary)] mb-1">استایل</p>
+                  <select value={bulkStyle} onChange={(e) => setBulkStyle(e.target.value as WardrobeStyle)} className="w-full rounded-xl border border-[var(--border)] px-2 py-2 text-sm bg-white">
+                    <option value="casual">کژوال</option>
+                    <option value="streetwear">استریت‌ویر</option>
+                    <option value="minimal">مینیمال</option>
+                    <option value="sporty">اسپرتی</option>
+                    <option value="smart-casual">اسمارت کژوال</option>
+                  </select>
+                </div>
+                <div>
+                  <p className="text-xs text-[var(--secondary)] mb-1">فرم</p>
+                  <select value={bulkFit} onChange={(e) => setBulkFit(e.target.value as WardrobeFit)} className="w-full rounded-xl border border-[var(--border)] px-2 py-2 text-sm bg-white">
+                    <option value="regular">معمولی</option>
+                    <option value="oversized">اورسایز</option>
+                    <option value="slim">اسلیم</option>
+                  </select>
+                </div>
+                <div>
+                  <p className="text-xs text-[var(--secondary)] mb-1">فصل</p>
+                  <select value={bulkSeason} onChange={(e) => setBulkSeason(e.target.value as WardrobeSeason)} className="w-full rounded-xl border border-[var(--border)] px-2 py-2 text-sm bg-white">
+                    <option value="all">همه فصل‌ها</option>
+                    <option value="spring">بهار</option>
+                    <option value="summer">تابستان</option>
+                    <option value="fall">پاییز</option>
+                    <option value="winter">زمستان</option>
+                  </select>
+                </div>
+              </div>
+              <p className="text-xs text-[var(--secondary)]">
+                انتخاب فعلی: <strong className="text-[var(--foreground)]">{CATEGORY_LABELS[bulkCategory]}</strong>
+              </p>
+              <button
+                type="button"
+                onClick={startBulkPick}
+                className="w-full rounded-full bg-[var(--foreground)] py-3 text-sm text-[var(--background)]"
+              >
+                انتخاب عکس‌ها و آپلود
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

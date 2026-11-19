@@ -11,8 +11,8 @@ import {
 } from "react";
 import { WardrobeItem, WardrobeOutfit, WardrobePrefs } from "@/lib/wardrobe/types";
 import {
-  loadItems,
-  saveItems,
+  loadItemsAsync,
+  saveItemsAsync,
   loadOutfits,
   saveOutfits,
   loadPrefs,
@@ -25,7 +25,9 @@ interface WardrobeContextType {
   outfits: WardrobeOutfit[];
   prefs: WardrobePrefs;
   ready: boolean;
+  saveError: string | null;
   addItem: (item: Omit<WardrobeItem, "id" | "createdAt">) => WardrobeItem;
+  addItems: (items: Omit<WardrobeItem, "id" | "createdAt">[]) => WardrobeItem[];
   updateItem: (id: string, patch: Partial<WardrobeItem>) => void;
   removeItem: (id: string) => void;
   toggleItemFavorite: (id: string) => void;
@@ -45,16 +47,35 @@ export function WardrobeProvider({ children }: { children: ReactNode }) {
     dislikedColors: [],
   });
   const [ready, setReady] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
-    setItems(loadItems());
-    setOutfits(loadOutfits());
-    setPrefsState(loadPrefs());
-    setReady(true);
+    let cancelled = false;
+    (async () => {
+      const loaded = await loadItemsAsync();
+      if (cancelled) return;
+      setItems(loaded);
+      setOutfits(loadOutfits());
+      setPrefsState(loadPrefs());
+      setReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (ready) saveItems(items);
+    if (!ready) return;
+    let cancelled = false;
+    (async () => {
+      const res = await saveItemsAsync(items);
+      if (cancelled) return;
+      if (!res.ok) setSaveError(res.error || "خطای ذخیره");
+      else setSaveError(null);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [items, ready]);
 
   useEffect(() => {
@@ -69,6 +90,17 @@ export function WardrobeProvider({ children }: { children: ReactNode }) {
     const item: WardrobeItem = { ...data, id: uid(), createdAt: Date.now() };
     setItems((prev) => [item, ...prev]);
     return item;
+  }, []);
+
+  const addItems = useCallback((batch: Omit<WardrobeItem, "id" | "createdAt">[]) => {
+    const now = Date.now();
+    const created: WardrobeItem[] = batch.map((data, i) => ({
+      ...data,
+      id: uid(),
+      createdAt: now + i,
+    }));
+    setItems((prev) => [...created, ...prev]);
+    return created;
   }, []);
 
   const updateItem = useCallback((id: string, patch: Partial<WardrobeItem>) => {
@@ -91,16 +123,25 @@ export function WardrobeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const saveOutfit = useCallback((outfit: WardrobeOutfit) => {
-    setOutfits((prev) => [outfit, ...prev.filter((o) => o.id !== outfit.id)]);
+    setOutfits((prev) => {
+      const i = prev.findIndex((o) => o.id === outfit.id);
+      if (i >= 0) return prev.map((o, idx) => (idx === i ? outfit : o));
+      return [outfit, ...prev];
+    });
   }, []);
 
   const removeOutfit = useCallback((id: string) => {
     setOutfits((prev) => prev.filter((o) => o.id !== id));
   }, []);
 
-  const setPrefs = useCallback((p: WardrobePrefs) => setPrefsState(p), []);
+  const setPrefs = useCallback((p: WardrobePrefs) => {
+    setPrefsState(p);
+  }, []);
 
-  const getItem = useCallback((id: string) => items.find((i) => i.id === id), [items]);
+  const getItem = useCallback(
+    (id: string) => items.find((i) => i.id === id),
+    [items]
+  );
 
   const value = useMemo(
     () => ({
@@ -108,7 +149,9 @@ export function WardrobeProvider({ children }: { children: ReactNode }) {
       outfits,
       prefs,
       ready,
+      saveError,
       addItem,
+      addItems,
       updateItem,
       removeItem,
       toggleItemFavorite,
@@ -122,7 +165,9 @@ export function WardrobeProvider({ children }: { children: ReactNode }) {
       outfits,
       prefs,
       ready,
+      saveError,
       addItem,
+      addItems,
       updateItem,
       removeItem,
       toggleItemFavorite,
@@ -133,7 +178,9 @@ export function WardrobeProvider({ children }: { children: ReactNode }) {
     ]
   );
 
-  return <WardrobeContext.Provider value={value}>{children}</WardrobeContext.Provider>;
+  return (
+    <WardrobeContext.Provider value={value}>{children}</WardrobeContext.Provider>
+  );
 }
 
 export function useWardrobe() {

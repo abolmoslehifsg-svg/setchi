@@ -34,21 +34,31 @@ export default function AdminLayout({
   const [session, setSession] = useState<AdminSession | null>(null);
   const [open, setOpen] = useState(true);
 
+  const isLoginPage =
+    !!pathname &&
+    (pathname.includes("/admin/login") || pathname.endsWith("/login"));
+
   useEffect(() => {
     const ok = isAdminLoggedIn();
     setAuthed(ok);
     setSession(getAdminSession());
     setReady(true);
-    if (!ok) router.replace("/auth/login/");
-  }, [router]);
+    if (!ok && !isLoginPage) router.replace("/admin/login/");
+    if (ok && isLoginPage) router.replace("/admin/");
+  }, [router, isLoginPage]);
 
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-[var(--secondary)]" dir="rtl">
+      <div
+        className="min-h-screen flex items-center justify-center text-sm text-[var(--secondary)]"
+        dir="rtl"
+      >
         در حال بررسی ورود…
       </div>
     );
   }
+
+  if (isLoginPage) return <>{children}</>;
 
   if (!authed) return null;
 
@@ -120,7 +130,7 @@ export default function AdminLayout({
               type="button"
               onClick={() => {
                 clearAdminSession();
-                router.replace("/auth/login/");
+                router.replace("/admin/login/");
               }}
               className="w-full rounded-xl px-3 py-2 text-xs text-[var(--danger)] hover:bg-[var(--muted)] text-right"
             >

@@ -4,13 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/lib/user-auth";
-import { checkAdminCredentials, setAdminSession } from "@/lib/admin-auth";
-
-type Mode = "user" | "admin";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("user");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,20 +16,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    if (mode === "admin") {
-      const session = checkAdminCredentials(username, password);
-      if (session) {
-        setAdminSession(session);
-        setLoading(false);
-        router.push("/admin/");
-        return;
-      }
-      setLoading(false);
-      setError("نام کاربری یا رمز ادمین اشتباه است.");
-      return;
-    }
-
     const res = loginUser(username, password);
     setLoading(false);
     if (!res.ok) {
@@ -45,51 +27,16 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16" dir="rtl">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold">
-          {mode === "user" ? "ورود" : "ورود ادمین"}
-        </h1>
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold">ورود</h1>
         <p className="mt-2 text-sm text-[var(--secondary)]">
-          {mode === "user"
-            ? "به حساب کاربری‌ات وارد شو تا استایلت ذخیره بماند."
-            : "فقط مالک و ادمین‌های اضافه‌شده."}
+          به حساب کاربری‌ات وارد شو تا استایل و علاقه‌مندی‌ها ذخیره بمانند.
         </p>
-      </div>
-
-      <div className="mb-6 flex rounded-full border border-[var(--border)] p-1 bg-[var(--muted)]">
-        <button
-          type="button"
-          onClick={() => {
-            setMode("user");
-            setError("");
-          }}
-          className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-            mode === "user"
-              ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
-              : "text-[var(--secondary)]"
-          }`}
-        >
-          کاربر
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setMode("admin");
-            setError("");
-          }}
-          className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-            mode === "admin"
-              ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
-              : "text-[var(--secondary)]"
-          }`}
-        >
-          ادمین
-        </button>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium mb-1.5">نام کاربری</label>
+          <label className="mb-1.5 block text-sm font-medium">نام کاربری</label>
           <input
             type="text"
             required
@@ -103,7 +50,7 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">رمز عبور</label>
+          <label className="mb-1.5 block text-sm font-medium">رمز عبور</label>
           <input
             type="password"
             required
@@ -117,7 +64,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>
+          <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
         )}
 
         <button
@@ -129,14 +76,12 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {mode === "user" && (
-        <p className="mt-8 text-center text-sm text-[var(--secondary)]">
-          حساب نداری؟{" "}
-          <Link href="/auth/register/" className="text-link font-medium">
-            ثبت‌نام
-          </Link>
-        </p>
-      )}
+      <p className="mt-8 text-center text-sm text-[var(--secondary)]">
+        حساب نداری؟{" "}
+        <Link href="/auth/register/" className="text-link font-medium">
+          ثبت‌نام
+        </Link>
+      </p>
     </div>
   );
 }

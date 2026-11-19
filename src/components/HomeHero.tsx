@@ -9,18 +9,32 @@ import {
   SITE_CONTENT_UPDATED_EVENT,
   type SiteContent,
 } from "@/lib/site-content";
+import { getUserSession, USER_AUTH_EVENT, type UserSession } from "@/lib/user-auth";
 
 export function HomeHero() {
   const [c, setC] = useState<SiteContent>(DEFAULT_SITE_CONTENT);
+  const [user, setUser] = useState<UserSession | null>(null);
 
   useEffect(() => {
     const sync = () => setC(loadSiteContent());
+    const syncUser = () => setUser(getUserSession());
     sync();
+    syncUser();
     window.addEventListener(SITE_CONTENT_UPDATED_EVENT, sync);
-    return () => window.removeEventListener(SITE_CONTENT_UPDATED_EVENT, sync);
+    window.addEventListener(USER_AUTH_EVENT, syncUser);
+    return () => {
+      window.removeEventListener(SITE_CONTENT_UPDATED_EVENT, sync);
+      window.removeEventListener(USER_AUTH_EVENT, syncUser);
+    };
   }, []);
 
   return (
+    <>
+    {user && (
+      <div className="bg-[var(--accent)] text-[var(--accent-foreground)] text-center text-sm py-2.5 px-4">
+        خوش اومدی، <strong>{user.displayName || user.username}</strong> — آماده‌ای استایل جدید بسازی؟
+      </div>
+    )}
     <section className="hero relative overflow-hidden">
       <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
         <div className="max-w-xl">
@@ -56,5 +70,6 @@ export function HomeHero() {
         </div>
       </div>
     </section>
+    </>
   );
 }

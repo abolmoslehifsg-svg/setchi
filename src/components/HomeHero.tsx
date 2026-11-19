@@ -24,14 +24,14 @@ export function HomeHero() {
     <section className="hero relative overflow-hidden">
       <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
         <div className="max-w-xl">
-          <p className="eyebrow mb-5 text-sm">{c.heroEyebrow}</p>
-          <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.2] tracking-tight">
+          <p className="eyebrow mb-5 text-sm hero-enter hero-enter-d1">{c.heroEyebrow}</p>
+          <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.2] tracking-tight hero-enter hero-enter-d2">
             {c.heroTitleLine1}
             <br className="hidden sm:block" />
             <mark className="hero-mark">{c.heroTitleHighlight}</mark> {c.heroTitleLine2}
           </h1>
-          <p className="hero-lead mt-6 text-lg leading-relaxed">{c.heroLead}</p>
-          <div className="mt-10 flex flex-wrap gap-4">
+          <p className="hero-lead mt-6 text-lg leading-relaxed hero-enter hero-enter-d3">{c.heroLead}</p>
+          <div className="mt-10 flex flex-wrap gap-4 hero-enter hero-enter-d4">
             <Link href={c.ctaPrimaryHref || "/wardrobe/"} className="btn btn-cta px-8 py-3.5 text-base">
               {c.ctaPrimaryLabel}
             </Link>
@@ -44,7 +44,7 @@ export function HomeHero() {
           </div>
         </div>
 
-        <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs">
+        <div className="hero-arch relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-xs soft-float hero-enter hero-enter-d5">
           <Image
             src={c.heroImage}
             alt={c.brandNameFa || "استایل"}

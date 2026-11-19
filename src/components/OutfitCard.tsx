@@ -17,14 +17,14 @@ export function OutfitCard({ outfit, priority = false }: OutfitCardProps) {
   const fav = isFavorite(outfit.id);
 
   return (
-    <div className="group relative block overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow">
+    <div className="group relative block overflow-hidden rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm card-interactive">
       <button
         type="button"
         onClick={(e) => {
           e.preventDefault();
           toggleFavorite(outfit.id);
         }}
-        className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-[var(--foreground)] hover:text-[var(--accent)]"
+        className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-[var(--foreground)] hover:text-[var(--accent)] hover:scale-110 active:scale-95 transition-transform"
         aria-label="علاقه‌مندی"
       >
         <svg className="w-4 h-4" fill={fav ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -43,7 +43,7 @@ export function OutfitCard({ outfit, priority = false }: OutfitCardProps) {
           />
         </div>
         <div className="p-4">
-          <h3 className="font-semibold group-hover:text-[var(--accent)] transition-colors">{outfit.titleFa}</h3>
+          <h3 className="font-semibold group-hover:text-[var(--accent)] transition-colors duration-300">{outfit.titleFa}</h3>
           <p className="mt-1 text-sm text-[var(--secondary)] line-clamp-2">{outfit.descriptionFa}</p>
           <div className="mt-3 flex items-center justify-between">
             <span className="text-sm font-medium">{formatPrice(getOutfitTotalPrice(outfit.items.map(i => i.productId)) || outfit.estimatedPrice)}</span>
